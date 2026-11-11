@@ -199,3 +199,39 @@ tr:last-child td { border-bottom: 0; }
   .top .wrap { gap: .5rem; }
 }
 @media (prefers-reduced-motion: reduce) { .card { transition: none; } .card:hover { transform: none; } }
+
+/* Карточки с иконкой, шапка записи, блоки страниц проекта. */
+.card-plain, .rcard, .news li { display: flex; flex-direction: row; gap: .9rem; align-items: flex-start; }
+.card-body { display: flex; flex-direction: column; gap: .3rem; min-width: 0; flex: 1; }
+.card .spr, .rcard .spr, .news .spr, .card .spr.sheet, .rcard .spr.sheet, .news .spr.sheet { --s: 48px; margin-top: .1rem; }
+.rcard .card-body { gap: 0; }
+.badge { align-self: flex-start; font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.badge.b-merged, .badge.b-released { color: var(--ok); } .badge.b-pr { color: var(--info); } .badge.b-local { color: var(--honey); }
+.grid-wide { grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr)); }
+.grid-wide .card { padding: 1.2rem 1.3rem; } .grid-wide .card strong { font-size: 1.2rem; } .grid-wide .card .spr { --s: 64px; }
+.sec-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: .3rem 1rem; margin: 2.4rem 0 .9rem; }
+.sec-head h2 { margin: 0; font-size: 1.4rem; }
+.about { margin-top: 3rem; padding-top: .5rem; border-top: 1px solid var(--line); }
+
+.rec-head { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2rem; align-items: center; margin: 0 0 2rem; padding: clamp(1.2rem, 3vw, 2.2rem);
+  border-radius: 18px; border: 1px solid var(--line); background: radial-gradient(110% 160% at 92% 30%, color-mix(in srgb, var(--honey) 16%, var(--surface)), var(--surface) 58%); }
+.rec-head.has-art { grid-template-columns: minmax(0, 1fr) auto; }
+.rec-head h1 { font-size: clamp(1.8rem, 4.2vw, 2.8rem); max-width: 22em; }
+.rec-head .lead { margin-bottom: 0; }
+.rec-head .eyebrow { color: var(--honey); }
+.rec-actions { display: flex; flex-wrap: wrap; gap: .5rem 1rem; align-items: center; margin: 1.2rem 0 0; }
+.rec-art { padding: 0 clamp(.5rem, 3vw, 2.5rem); }
+.spr.art-spr, .spr.sheet.art-spr { --s: clamp(6rem, 14vw, 10rem); filter: drop-shadow(0 10px 14px rgb(0 0 0 / 25%)); }
+.states { margin: 0; display: grid; gap: .35rem; }
+.states div { display: flex; justify-content: space-between; gap: 1rem; }
+.states dt { color: var(--muted); } .states dd { margin: 0; font-weight: 600; text-align: right; }
+.states .v-accepted, .states .v-merged, .states .v-released, .states .v-tests, .states .v-published { color: var(--ok); }
+.states .v-pr, .states .v-local, .states .v-proposed, .states .v-partial, .states .v-ready, .states .v-model { color: var(--info); }
+.states .v-rejected, .states .v-stale, .states .v-superseded { color: var(--bad); }
+.related { margin-top: 3rem; padding-top: .5rem; border-top: 1px solid var(--line); }
+.related .grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); }
+.doc-side > :first-child { margin-top: 0; border-top: 0; padding-top: 0; }
+.prose { font-size: 1.04rem; }
+.prose > p:first-child { font-size: 1.15rem; }
+@media (max-width: 40rem) { .rec-head.has-art { grid-template-columns: minmax(0, 1fr); } .rec-art { order: -1; padding: 0; } }
+.spr.sheet.art-spr { transform: scale(1.7); }

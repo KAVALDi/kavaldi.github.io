@@ -26,10 +26,22 @@
   "code_refs": [],
   "references": [],
   "ingame_url": null,
+  "icon": {
+    "layers": [
+      {
+        "file": "media/redstar/bees-queen-base.png"
+      },
+      {
+        "file": "media/redstar/bees-queen-wings.png"
+      }
+    ],
+    "cols": 4,
+    "tint": "#E8A21C"
+  },
   "docs_reviewed": null,
   "stale": [],
   "created": "2026-11-11",
   "updated": "2026-11-11",
-  "revision": 1,
+  "revision": 2,
   "body": "## Суть\n\nУ матки есть слоты признаков. Признаки меняют поведение колонии, передаются дочерям и раскрываются по мере наблюдения.\n\n## Предлагаемые механики\n\n- Открытие признаков и подсказки шприца в анализаторе пасеки.\n- Маточное молочко даёт матке место для новых признаков."
 }

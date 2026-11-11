@@ -102,6 +102,7 @@ export function buildPublicSnapshot(store) {
       items: (s.items || []).map((i) => ({ label: String(i.label || ''), layers: (i.layers || []).map((l) => layer(l, owner)) })),
     };
   };
+  const tintOf = (p) => (/^#[0-9a-fA-F]{6}$/.test(p?.showcase?.tint || '') ? p.showcase.tint : '#E8A21C');
   const projects = [...store.projects.values()].filter((p) => p.visibility === 'public').map((p) => ({
     id: p.id, title: p.title, nature: p.nature || 'project', tagline: p.tagline || '', order: p.order ?? 100,
     status_note: p.status_note || '', showcase: showcase(p),
@@ -132,6 +133,8 @@ export function buildPublicSnapshot(store) {
       })),
       references: e.references.map((r) => ({ title: r.title || r.url, url: r.url })),
       ingame_url: e.ingame_url || null,
+      // Иконка записи из игровых спрайтов (те же правила атрибуции, что и у витрины).
+      icon: e.icon && Array.isArray(e.icon.layers) && e.icon.layers.length ? { layers: e.icon.layers.map((l) => layer(l, `записи ${e.id}`)), cols: Number(e.icon.cols) || 0, tint: tintOf(store.projects.get(e.project)) } : null,
       docs_reviewed: e.docs_reviewed || null,
       // Устаревание показываем публично, а детали только для кода из публичных репозиториев.
       stale: stale.map((s) => (publicRepos.has(s.repo) ? { ...s, url: codeRefUrl(s), via: pub.has(s.via) ? s.via : null } : { date: s.date })),
