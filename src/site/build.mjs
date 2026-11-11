@@ -90,6 +90,62 @@ export function buildSite({ contentDir, outDir, base = '/' } = {}) {
   // Спрайт из слоёв. Слой с tint окрашивается умножением, как в игре. Лист кадров (cols) анимируется.
   const spr = (layers, tint, { cls = '', cols = 0 } = {}) => `<span class="spr ${cls}"${cols ? ` style="--c:${cols}"` : ''}>${layers.map((l) => `<i${l.tint ? ' class="tint"' : ''} style="--img:url('${esc(base + l.file)}')${l.tint ? `;--tint:${esc(tint)}` : ''}"></i>`).join('')}</span>`;
   const FLY = [[14, 16, 7.5, 0], [70, 8, 9, -3], [82, 52, 8, -5], [6, 60, 10, -2], [44, 2, 11, -6], [58, 70, 9.5, -1], [28, 74, 8.5, -4], [90, 28, 10.5, -7]];
+  // --- карта связей ---
+  // Строится при сборке, без JavaScript: записи раскладываются по слоям слева направо
+  // (слева то, от чего зависят, справа то, что на этом построено). Линии рисуются SVG под карточками.
+  const LAYER_RELS = new Set(['depends-on', 'part-of', 'documents', 'decided-by', 'evidence-for', 'implements', 'supersedes', 'rejects']);
+  const REL_NOTE = { 'depends-on': 'нужно для', 'part-of': 'включает', documents: 'описано в', 'decided-by': 'определяет', 'evidence-for': 'обосновано в', implements: 'реализовано в', supersedes: 'заменено на', rejects: 'отклонено в', relates: 'связано' };
+  const graphBlock = (list, { current = null, label = 'Карта связей' } = {}) => {
+    const ids = new Set(list.map((e) => e.id));
+    const edges = list.flatMap((e) => e.links.filter((l) => ids.has(l.to) && l.to !== e.id).map((l) => ({ from: e.id, to: l.to, rel: l.rel })));
+    if (!edges.length) return '';
+    const nodes = list.filter((e) => edges.some((x) => x.from === e.id || x.to === e.id));
+    const depth = new Map();
+    const dep = (id, seen = new Set()) => {
+      if (depth.has(id)) return depth.get(id);
+      if (seen.has(id)) return 0;
+      seen.add(id);
+      const outs = edges.filter((x) => x.from === id && LAYER_RELS.has(x.rel));
+      const d = outs.length ? 1 + Math.max(...outs.map((x) => dep(x.to, seen))) : 0;
+      depth.set(id, d);
+      return d;
+    };
+    nodes.forEach((e) => dep(e.id));
+    const W = 232, H = 72, GX = 84, GY = 18;
+    const cols = [];
+    for (const e of nodes) (cols[depth.get(e.id)] ||= []).push(e);
+    const row = new Map();
+    cols.forEach((col, d) => {
+      const bary = (e) => { const ps = edges.filter((x) => x.from === e.id && row.has(x.to)).map((x) => row.get(x.to)); return ps.length ? ps.reduce((a, b) => a + b, 0) / ps.length : 1e3; };
+      col.sort((a, b) => (d ? bary(a) - bary(b) : 0) || a.title.localeCompare(b.title, 'ru'));
+      col.forEach((e, i) => row.set(e.id, i));
+    });
+    const maxRows = Math.max(...cols.map((c) => c.length));
+    const pos = new Map();
+    cols.forEach((col, d) => col.forEach((e, i) => pos.set(e.id, { x: d * (W + GX), y: i * (H + GY) + ((maxRows - col.length) * (H + GY)) / 2 })));
+    const width = cols.length * W + (cols.length - 1) * GX, height = maxRows * H + (maxRows - 1) * GY;
+    const used = [...new Set(edges.map((x) => x.rel))];
+    const paths = edges.map((x) => {
+      const a = pos.get(x.to), b = pos.get(x.from); // от основы к зависящему
+      let d;
+      if (a.x === b.x) {
+        const [t, u] = a.y < b.y ? [a, b] : [b, a];
+        d = `M${t.x + W / 2},${t.y + H} L${u.x + W / 2},${u.y}`;
+      } else {
+        const [l, r] = a.x < b.x ? [a, b] : [b, a];
+        const x1 = l.x + W, y1 = l.y + H / 2, x2 = r.x, y2 = r.y + H / 2, c = (x2 - x1) / 2;
+        d = `M${x1},${y1} C${x1 + c},${y1} ${x2 - c},${y2} ${x2},${y2}`;
+      }
+      const hot = current && (x.from === current || x.to === current);
+      return `<path class="ge r-${esc(x.rel)}${hot ? ' hot' : ''}" d="${d}"><title>${esc(byId.get(x.to).title)} → ${esc(REL_NOTE[x.rel] || x.rel)} → ${esc(byId.get(x.from).title)}</title></path>`;
+    }).join('');
+    return `<div class="graph-wrap" role="group" aria-label="${esc(label)}"><div class="graph" style="width:${width}px;height:${height}px">
+<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" aria-hidden="true">${paths}</svg>
+${nodes.map((e) => { const p0 = pos.get(e.id); return `<a class="gnode${e.id === current ? ' cur' : ''}" style="left:${p0.x}px;top:${p0.y}px;width:${W}px;height:${H}px" href="${urlOf(e)}"${e.id === current ? ' aria-current="page"' : ''}>${ico(e)}<span><strong>${esc(e.title)}</strong><small>${esc([ENTITY_TYPES[e.type]?.label, badge(e)].filter(Boolean).join(' · '))}</small></span></a>`; }).join('')}
+</div></div>
+<p class="graph-legend muted small">Слева основа, справа то, что на ней построено. ${used.map((r) => `<span><i class="lg r-${esc(r)}"></i>${esc(REL_NOTE[r] || r)}</span>`).join('')}</p>`;
+  };
+
   const showcaseBlock = (p, { self = false } = {}) => {
     const s = p.showcase;
     const target = s.entity && byId.get(s.entity);
@@ -122,6 +178,7 @@ export function buildSite({ contentDir, outDir, base = '/' } = {}) {
         ['wiki/', 'Wiki', ents.some((e) => e.type === 'article')],
         ['kb/', 'Каталог', ents.some((e) => dirOf(e) === 'kb')],
         ['roadmap/', 'Roadmap', ents.some((e) => e.roadmap)],
+        ['map/', 'Карта', ents.some((e) => e.links.some((l) => byId.get(l.to)?.project === project.id))],
         ['devlog/', 'Devlog', ents.some((e) => e.type === 'devlog')],
         ['code/', 'Код и задачи', ents.some((e) => e.code_refs.length || e.type === 'task')],
       ].filter((t) => t[2]);
@@ -254,6 +311,13 @@ ${groups.map(([t, l]) => `<section id="${t}"><h2>${esc(ENTITY_TYPES[t].plural)}<
 <div class="lanes">${['now', 'next', 'done', 'later'].map((lane) => { const l = road.filter((e) => e.roadmap.lane === lane).sort((a, b) => a.roadmap.order - b.roadmap.order || a.title.localeCompare(b.title, 'ru')); return l.length ? `<section class="lane lane-${lane}"><h2>${ROADMAP_LANES[lane]} <span class="muted">${l.length}</span></h2><div class="lane-cards">${l.map((e) => `<article class="rcard">${ico(e)}<div class="card-body"><a href="${urlOf(e)}"><strong>${esc(e.title)}</strong></a>${e.summary ? `<p>${esc(e.summary)}</p>` : ''}${e.code_refs.length ? `<ul class="refs">${e.code_refs.map((c) => `<li>${refLine(c)}</li>`).join('')}</ul>` : ''}</div></article>`).join('')}</div></section>` : ''; }).join('')}</div>`,
       }));
     }
+    const map = graphBlock(ents, { label: `Карта связей проекта ${p.title}` });
+    if (map) {
+      put(`projects/${p.id}/map/index.html`, layout({
+        title: `Карта · ${p.title}`, project: p, tab: 'map/', wide: true,
+        body: `<header class="page-head"><h1>Карта связей</h1><p class="lead">Как механики, статьи и решения проекта держатся друг за друга. Каждая карточка открывает запись.</p></header>${map}`,
+      }));
+    }
     if (devlog.length) {
       put(`projects/${p.id}/devlog/index.html`, layout({
         title: `Devlog, ${p.title}`, project: p, tab: 'devlog/',
@@ -306,7 +370,7 @@ ${hasNav ? `<nav class="doc-nav" aria-label="Статьи Wiki"><details open><s
 <article class="doc-main">
 ${e.stale.length ? `<aside class="stale" role="note"><strong>Страница может быть устаревшей.</strong> После последней сверки (${fmtDate(e.docs_reviewed)}) изменился связанный код:<ul>${e.stale.map((s) => `<li>${s.url ? `<a class="ext" rel="noopener" href="${esc(s.url)}">${esc(s.repo)} ${s.kind === 'pr' ? '#' : ''}${esc(s.ref)}</a>${s.title ? `, ${esc(s.title)}` : ''}, ${fmtDate(s.date)}` : `связанное изменение от ${fmtDate(s.date)}`}</li>`).join('')}</ul></aside>` : ''}
 <div class="prose">${r.html || '<p class="muted">Текст ещё не написан.</p>'}</div>
-${relGroups.length ? `<section class="related"><h2>Связанное</h2>${relGroups.map(([label, items]) => `<p class="rel-label">${esc(label)}</p><div class="grid">${items.map((x) => card(x.e, { plain: true })).join('')}</div>`).join('')}</section>` : ''}
+${rel.length ? `<section class="related"><div class="sec-head"><h2>Связи</h2><a href="${purl(p, 'map/')}">Вся карта проекта →</a></div>${graphBlock([e, ...new Set(rel.map((x) => x.e))], { current: e.id, label: `Связи записи "${e.title}"` })}</section>` : ''}
 </article>
 <aside class="doc-side">${side}</aside>
 </div>`,
