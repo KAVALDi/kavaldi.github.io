@@ -1,0 +1,12 @@
+{
+  "id": "project-zomboid",
+  "title": "Project Zomboid",
+  "nature": "game-mod",
+  "tagline": "Идеи механик и моды для Project Zomboid.",
+  "order": 3,
+  "status_note": "Материалы по проекту в базу знаний ещё не импортированы. Конкретные механики появятся здесь после импорта заметок.",
+  "showcase": null,
+  "repos": [],
+  "links": [],
+  "body": ""
+}

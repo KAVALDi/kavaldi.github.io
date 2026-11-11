@@ -1,0 +1,35 @@
+{
+  "id": "mech-traits001",
+  "type": "mechanic",
+  "project": "redstar",
+  "title": "Признаки матки",
+  "slug": "queen-traits",
+  "aliases": [],
+  "summary": "Матка получает признаки, которые раскрываются через поведение колонии и видны в анализаторе пасеки.",
+  "tags": [],
+  "states": {
+    "design": "accepted",
+    "implementation": "local",
+    "verification": "partial",
+    "docs": "none"
+  },
+  "roadmap": {
+    "lane": "now",
+    "order": 3
+  },
+  "links": [
+    {
+      "rel": "depends-on",
+      "to": "mech-beekeep01"
+    }
+  ],
+  "code_refs": [],
+  "references": [],
+  "ingame_url": null,
+  "docs_reviewed": null,
+  "stale": [],
+  "created": "2026-11-11",
+  "updated": "2026-11-11",
+  "revision": 1,
+  "body": "## Суть\n\nУ матки есть слоты признаков. Признаки меняют поведение колонии, передаются дочерям и раскрываются по мере наблюдения.\n\n## Предлагаемые механики\n\n- Открытие признаков и подсказки шприца в анализаторе пасеки.\n- Маточное молочко даёт матке место для новых признаков."
+}

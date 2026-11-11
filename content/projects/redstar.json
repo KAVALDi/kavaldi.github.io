@@ -1,0 +1,122 @@
+{
+  "id": "redstar",
+  "title": "RedStar · Space Station 14",
+  "nature": "game-mod",
+  "tagline": "Игровые механики для сервера RedStar (Space Station 14). Подробнее всего описано пчеловодство.",
+  "order": 1,
+  "status_note": "",
+  "showcase": {
+    "eyebrow": "Space Station 14 · RedStar",
+    "title": "Как устроено пчеловодство в SS14",
+    "text": "Улей, матка, рамки и соты. Пчёлы сами находят созревшие растения, колония растёт, а запечатанную рамку срезают дважды, на воск и на соты.",
+    "cta": "Читать о первой пасеке",
+    "entity": "art-beekeeping",
+    "tint": "#E8A21C",
+    "layers": [
+      {
+        "file": "media/redstar/beehive-frames-4.png"
+      },
+      {
+        "file": "media/redstar/beehive-honey-4.png",
+        "tint": true
+      }
+    ],
+    "flyers": [
+      {
+        "layers": [
+          {
+            "file": "media/redstar/bees-worker-base.png"
+          },
+          {
+            "file": "media/redstar/bees-worker-wings.png"
+          }
+        ],
+        "cols": 3,
+        "rows": 2,
+        "count": 4
+      },
+      {
+        "layers": [
+          {
+            "file": "media/redstar/bees-queen-base.png"
+          },
+          {
+            "file": "media/redstar/bees-queen-wings.png"
+          }
+        ],
+        "cols": 4,
+        "rows": 2,
+        "count": 1
+      }
+    ],
+    "items": [
+      {
+        "label": "Соты",
+        "layers": [
+          {
+            "file": "media/redstar/honeycomb-icon.png"
+          }
+        ]
+      },
+      {
+        "label": "Воск",
+        "layers": [
+          {
+            "file": "media/redstar/wax-icon.png"
+          }
+        ]
+      },
+      {
+        "label": "Рамка",
+        "layers": [
+          {
+            "file": "media/redstar/frame-foundation.png"
+          },
+          {
+            "file": "media/redstar/frame-comb.png",
+            "tint": true
+          },
+          {
+            "file": "media/redstar/frame-outline.png"
+          }
+        ]
+      },
+      {
+        "label": "Дикий улей",
+        "layers": [
+          {
+            "file": "media/redstar/wild-beehive-base.png"
+          },
+          {
+            "file": "media/redstar/wild-beehive-honey.png",
+            "tint": true
+          },
+          {
+            "file": "media/redstar/wild-beehive-stripes.png"
+          }
+        ]
+      }
+    ]
+  },
+  "repos": [
+    {
+      "repo": "red-star-server/RedStar",
+      "url": "https://github.com/red-star-server/RedStar"
+    },
+    {
+      "repo": "KAVALDi/RedStar",
+      "url": "https://github.com/KAVALDi/RedStar"
+    }
+  ],
+  "links": [
+    {
+      "title": "Прежний сайт пчеловодства",
+      "url": "https://kavaldi.github.io/RedStar/"
+    },
+    {
+      "title": "Демо анализатора пасеки",
+      "url": "https://kavaldi.github.io/RedStar/analyzer/"
+    }
+  ],
+  "body": "RedStar это сервер Space Station 14. Здесь собраны механики, над которыми я работаю, их состояние в коде и история решений.\n\nПчеловодство связывает ботанику, карго, химию и поведение колонии. Ядро механики уже в основной ветке игры, рои и мясные пчёлы проходят ревью.\n\nПрежний сайт пчеловодства продолжает работать отдельно: там остаются статьи в прежнем оформлении, руководство \"как в игре\" и демо анализатора пасеки."
+}

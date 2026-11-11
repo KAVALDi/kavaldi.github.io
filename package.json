@@ -1,0 +1,38 @@
+{
+  "name": "kavaldi-knowledge-hub",
+  "version": "0.1.0",
+  "description": "Developer Knowledge Hub: персональный сайт и инженерная база знаний",
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "test": "test"
+  },
+  "scripts": {
+    "hub": "node src/cli.mjs",
+    "studio": "node src/cli.mjs studio",
+    "release": "node src/cli.mjs release",
+    "build": "node src/cli.mjs build",
+    "serve": "node src/cli.mjs serve",
+    "test": "node --test",
+    "demo:studio": "node src/cli.mjs studio --store .cache/demo-store",
+    "demo:init": "node scripts/demo-init.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KAVALDi/kavaldi.github.io.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/KAVALDi/kavaldi.github.io/issues"
+  },
+  "homepage": "https://github.com/KAVALDi/kavaldi.github.io#readme",
+  "dependencies": {
+    "markdown-it": "^14.3.3",
+    "yaml": "^2.9.1"
+  },
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  }
+}

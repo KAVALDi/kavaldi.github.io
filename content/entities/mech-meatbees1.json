@@ -1,0 +1,45 @@
+{
+  "id": "mech-meatbees1",
+  "type": "mechanic",
+  "project": "redstar",
+  "title": "Мясные пчёлы и злой улей",
+  "slug": "meat-bees-angry-hive",
+  "aliases": [],
+  "summary": "Колонии с особыми источниками корма и защита повреждённого улья.",
+  "tags": [],
+  "states": {
+    "design": "accepted",
+    "implementation": "pr",
+    "verification": "tests",
+    "docs": "none"
+  },
+  "roadmap": {
+    "lane": "now",
+    "order": 2
+  },
+  "links": [
+    {
+      "rel": "depends-on",
+      "to": "mech-swarms001"
+    }
+  ],
+  "code_refs": [
+    {
+      "repo": "red-star-server/RedStar",
+      "kind": "pr",
+      "ref": "154",
+      "title": "Пчеловодство: мясные пчёлы и злой улей",
+      "state": "open",
+      "merged_at": null,
+      "url": "https://github.com/red-star-server/RedStar/pull/154"
+    }
+  ],
+  "references": [],
+  "ingame_url": null,
+  "docs_reviewed": null,
+  "stale": [],
+  "created": "2026-11-11",
+  "updated": "2026-11-11",
+  "revision": 2,
+  "body": "## Суть\n\nПовреждённый улей защищается, а там, где есть живность, но нет растений, появляется мясная колония.\n\n## Предлагаемые механики\n\n- Повреждённый улей выпускает агрессивных пчёл. От них защищает костюм пчеловода со шляпой.\n- Мясная колония возникает при живности без растений и охотится, перемещаясь по вентиляции.\n- Мясные соты делаются из запаса крови улья."
+}

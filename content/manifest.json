@@ -1,0 +1,109 @@
+{
+  "format": 1,
+  "note": "Сгенерировано командой \"hub export\" из приватного хранилища. Не редактировать вручную.",
+  "projects": [
+    "redstar",
+    "project-zomboid"
+  ],
+  "entities": 7,
+  "credits": [
+    {
+      "file": "media/redstar/beehive-frames-4.png",
+      "license": "CC-BY-SA-3.0",
+      "author": "frames-0 to frames-4 taken from tgstation icons/obj/service/hydroponics/equipment.dmi at commit https://github.com/tgstation/tgstation/commit/a28d7aba8fd21609596d0412d9e680686fa0b238, modified by KAVALDi (github). honey-1 to honey-4 drawn by KAVALDi (github), desaturated so the colour is set by a tint.",
+      "source": "https://github.com/red-star-server/RedStar/tree/master/Resources/Textures/_RedStar/Objects/Specific/Beekeeping/beehive.rsi",
+      "note": "Состояние frames-4 из beehive.rsi, игровой ресурс RedStar."
+    },
+    {
+      "file": "media/redstar/beehive-honey-4.png",
+      "license": "CC-BY-SA-3.0",
+      "author": "frames-0 to frames-4 taken from tgstation icons/obj/service/hydroponics/equipment.dmi at commit https://github.com/tgstation/tgstation/commit/a28d7aba8fd21609596d0412d9e680686fa0b238, modified by KAVALDi (github). honey-1 to honey-4 drawn by KAVALDi (github), desaturated so the colour is set by a tint.",
+      "source": "https://github.com/red-star-server/RedStar/tree/master/Resources/Textures/_RedStar/Objects/Specific/Beekeeping/beehive.rsi",
+      "note": "Состояние honey-4 из beehive.rsi, игровой ресурс RedStar."
+    },
+    {
+      "file": "media/redstar/bees-queen-base.png",
+      "license": "CC-BY-SA-3.0",
+      "author": "worker-base, worker-grey, worker-wings, queen-base, queen-grey and queen-wings taken from tgstation icons/mob/simple/bees.dmi at commit https://github.com/tgstation/tgstation/commit/be0e6efdf6b18e953d3dcb1eff584b66a9d3b9e3 (states bee_base, bee_grey, bee_wings, queen_base, queen_grey, queen_wings). scout, scout-grey, scout-angry, worker-base-angry and queen-base-angry drawn by KAVALDi (github).",
+      "source": "https://github.com/red-star-server/RedStar/tree/master/Resources/Textures/_RedStar/Objects/Specific/Beekeeping/bees.rsi",
+      "note": "Состояние queen-base из bees.rsi, игровой ресурс RedStar."
+    },
+    {
+      "file": "media/redstar/bees-queen-wings.png",
+      "license": "CC-BY-SA-3.0",
+      "author": "worker-base, worker-grey, worker-wings, queen-base, queen-grey and queen-wings taken from tgstation icons/mob/simple/bees.dmi at commit https://github.com/tgstation/tgstation/commit/be0e6efdf6b18e953d3dcb1eff584b66a9d3b9e3 (states bee_base, bee_grey, bee_wings, queen_base, queen_grey, queen_wings). scout, scout-grey, scout-angry, worker-base-angry and queen-base-angry drawn by KAVALDi (github).",
+      "source": "https://github.com/red-star-server/RedStar/tree/master/Resources/Textures/_RedStar/Objects/Specific/Beekeeping/bees.rsi",
+      "note": "Состояние queen-wings из bees.rsi, игровой ресурс RedStar."
+    },
+    {
+      "file": "media/redstar/bees-worker-base.png",
+      "license": "CC-BY-SA-3.0",
+      "author": "worker-base, worker-grey, worker-wings, queen-base, queen-grey and queen-wings taken from tgstation icons/mob/simple/bees.dmi at commit https://github.com/tgstation/tgstation/commit/be0e6efdf6b18e953d3dcb1eff584b66a9d3b9e3 (states bee_base, bee_grey, bee_wings, queen_base, queen_grey, queen_wings). scout, scout-grey, scout-angry, worker-base-angry and queen-base-angry drawn by KAVALDi (github).",
+      "source": "https://github.com/red-star-server/RedStar/tree/master/Resources/Textures/_RedStar/Objects/Specific/Beekeeping/bees.rsi",
+      "note": "Состояние worker-base из bees.rsi, игровой ресурс RedStar."
+    },
+    {
+      "file": "media/redstar/bees-worker-wings.png",
+      "license": "CC-BY-SA-3.0",
+      "author": "worker-base, worker-grey, worker-wings, queen-base, queen-grey and queen-wings taken from tgstation icons/mob/simple/bees.dmi at commit https://github.com/tgstation/tgstation/commit/be0e6efdf6b18e953d3dcb1eff584b66a9d3b9e3 (states bee_base, bee_grey, bee_wings, queen_base, queen_grey, queen_wings). scout, scout-grey, scout-angry, worker-base-angry and queen-base-angry drawn by KAVALDi (github).",
+      "source": "https://github.com/red-star-server/RedStar/tree/master/Resources/Textures/_RedStar/Objects/Specific/Beekeeping/bees.rsi",
+      "note": "Состояние worker-wings из bees.rsi, игровой ресурс RedStar."
+    },
+    {
+      "file": "media/redstar/frame-comb.png",
+      "license": "CC-BY-SA-3.0",
+      "author": "Based on the honey_frame state of tgstation icons/obj/service/hydroponics/equipment.dmi at commit https://github.com/tgstation/tgstation/commit/a28d7aba8fd21609596d0412d9e680686fa0b238, modified by KAVALDi (github). The comb and outline overlays are drawn by KAVALDi (github).",
+      "source": "https://github.com/red-star-server/RedStar/tree/master/Resources/Textures/_RedStar/Objects/Specific/Beekeeping/frame.rsi",
+      "note": "Состояние comb из frame.rsi, игровой ресурс RedStar."
+    },
+    {
+      "file": "media/redstar/frame-foundation.png",
+      "license": "CC-BY-SA-3.0",
+      "author": "Based on the honey_frame state of tgstation icons/obj/service/hydroponics/equipment.dmi at commit https://github.com/tgstation/tgstation/commit/a28d7aba8fd21609596d0412d9e680686fa0b238, modified by KAVALDi (github). The comb and outline overlays are drawn by KAVALDi (github).",
+      "source": "https://github.com/red-star-server/RedStar/tree/master/Resources/Textures/_RedStar/Objects/Specific/Beekeeping/frame.rsi",
+      "note": "Состояние foundation из frame.rsi, игровой ресурс RedStar."
+    },
+    {
+      "file": "media/redstar/frame-outline.png",
+      "license": "CC-BY-SA-3.0",
+      "author": "Based on the honey_frame state of tgstation icons/obj/service/hydroponics/equipment.dmi at commit https://github.com/tgstation/tgstation/commit/a28d7aba8fd21609596d0412d9e680686fa0b238, modified by KAVALDi (github). The comb and outline overlays are drawn by KAVALDi (github).",
+      "source": "https://github.com/red-star-server/RedStar/tree/master/Resources/Textures/_RedStar/Objects/Specific/Beekeeping/frame.rsi",
+      "note": "Состояние outline из frame.rsi, игровой ресурс RedStar."
+    },
+    {
+      "file": "media/redstar/honeycomb-icon.png",
+      "license": "CC-BY-SA-3.0",
+      "author": "Taken from the honey state of tgstation icons/obj/service/hydroponics/harvest.dmi at commit https://github.com/tgstation/tgstation/commit/ef2317dd53b48801c19befdd017f779fbc1b26af, modified by KAVALDi (github). The overlay states are drawn by KAVALDi (github) from this icon.",
+      "source": "https://github.com/red-star-server/RedStar/tree/master/Resources/Textures/_RedStar/Objects/Specific/Beekeeping/honeycomb.rsi",
+      "note": "Состояние icon из honeycomb.rsi, игровой ресурс RedStar."
+    },
+    {
+      "file": "media/redstar/wax-icon.png",
+      "license": "CC-BY-SA-3.0",
+      "author": "Drawn by KAVALDi (github).",
+      "source": "https://github.com/red-star-server/RedStar/tree/master/Resources/Textures/_RedStar/Objects/Specific/Beekeeping/wax.rsi",
+      "note": "Состояние icon из wax.rsi, игровой ресурс RedStar."
+    },
+    {
+      "file": "media/redstar/wild-beehive-base.png",
+      "license": "CC-BY-SA-3.0",
+      "author": "Drawn by KAVALDi (github).",
+      "source": "https://github.com/red-star-server/RedStar/tree/master/Resources/Textures/_RedStar/Objects/Specific/Beekeeping/wild-beehive.rsi",
+      "note": "Состояние base из wild-beehive.rsi, игровой ресурс RedStar."
+    },
+    {
+      "file": "media/redstar/wild-beehive-honey.png",
+      "license": "CC-BY-SA-3.0",
+      "author": "Drawn by KAVALDi (github).",
+      "source": "https://github.com/red-star-server/RedStar/tree/master/Resources/Textures/_RedStar/Objects/Specific/Beekeeping/wild-beehive.rsi",
+      "note": "Состояние honey из wild-beehive.rsi, игровой ресурс RedStar."
+    },
+    {
+      "file": "media/redstar/wild-beehive-stripes.png",
+      "license": "CC-BY-SA-3.0",
+      "author": "Drawn by KAVALDi (github).",
+      "source": "https://github.com/red-star-server/RedStar/tree/master/Resources/Textures/_RedStar/Objects/Specific/Beekeeping/wild-beehive.rsi",
+      "note": "Состояние stripes из wild-beehive.rsi, игровой ресурс RedStar."
+    }
+  ]
+}
