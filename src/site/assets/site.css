@@ -110,7 +110,7 @@ main.wide { max-width: 82rem; }
 /* Витрина на главной: настоящие игровые спрайты, увеличенные без сглаживания. */
 :root { --honey: #d98a00; }
 @media (prefers-color-scheme: dark) { :root { --honey: #f0b232; } }
-.show { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 2rem; align-items: center; margin: 1rem 0 2.5rem; padding: clamp(1.2rem, 3vw, 2.5rem);
+.show { overflow: hidden; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 2rem; align-items: center; margin: 1rem 0 2.5rem; padding: clamp(1.2rem, 3vw, 2.5rem);
   border-radius: 18px; border: 1px solid var(--line); background: radial-gradient(120% 140% at 85% 20%, color-mix(in srgb, var(--honey) 22%, var(--surface)), var(--surface) 62%); box-shadow: var(--shadow); }
 .show h2 { font-size: clamp(1.6rem, 3.6vw, 2.5rem); margin: 0 0 .7rem; letter-spacing: -.015em; }
 .show-text p { font-size: 1.08rem; max-width: 34rem; margin: 0 0 1.2rem; }
