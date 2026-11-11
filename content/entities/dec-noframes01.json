@@ -1,0 +1,47 @@
+{
+  "id": "dec-noframes01",
+  "type": "decision",
+  "project": "redstar",
+  "title": "Улей без рамок: колония уходит, яйца и \"виртуальных мест\" нет",
+  "slug": "no-frames-abandon",
+  "aliases": [],
+  "summary": "Вместо яйца без рамок и пяти виртуальных мест принят уход колонии через 3 минуты.",
+  "tags": [],
+  "states": {
+    "design": "accepted",
+    "implementation": "pr",
+    "verification": "tests",
+    "docs": "none"
+  },
+  "roadmap": null,
+  "links": [],
+  "code_refs": [
+    {
+      "repo": "red-star-server/RedStar",
+      "kind": "pr",
+      "ref": "153",
+      "title": "Пчеловодство: рои и дикие ульи",
+      "state": "open",
+      "merged_at": null,
+      "url": "https://github.com/red-star-server/RedStar/pull/153"
+    }
+  ],
+  "references": [],
+  "changes": [],
+  "ingame_url": null,
+  "icon": {
+    "layers": [
+      {
+        "file": "media/redstar/beehive-frames-4.png"
+      }
+    ],
+    "cols": 0,
+    "tint": "#E8A21C"
+  },
+  "docs_reviewed": null,
+  "stale": [],
+  "created": "2026-11-11",
+  "updated": "2026-11-11",
+  "revision": 4,
+  "body": "## Суть\n\nУлей с маткой и без рамок через 3 минуты считается брошенным.\n\n## Отклонённые варианты\n\n- Яйцо матки в улье без рамок. Отклонено: бесплатный фарм маточного молочка.\n- Улей без рамок вмещает пять пчёл. Отклонено: обесценивает первую рамку.\n\n## Известные факты\n\nВ PR ядра (#150) это не трогали. Правило реализуется в PR роёв."
+}

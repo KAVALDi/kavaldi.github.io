@@ -49,6 +49,44 @@ export function buildSite({ contentDir, outDir, base = '/' } = {}) {
     t.attrSet('loading', 'lazy');
     return defImg(tokens, idx, opts, env, self);
   };
+  // Схема: строки вида "-> Название {media/файл.png} | пояснение". Спрайт: слои через "+", "*" отмечает окрашиваемый слой, "@3" задаёт лист из 3 кадров.
+  const flowSpr = (spec, tint) => {
+    const parts = spec.split('+').map((x) => x.trim()).filter(Boolean);
+    if (!parts.length || !parts.every((x) => /^media\/[\w./-]+?\*?(@\d)?$/.test(x))) return '';
+    const cols = Number((/@(\d)$/.exec(parts[0]) || [])[1]) || 0;
+    return spr(parts.map((x) => { const f = x.replace(/@\d$/, ''); return { file: f.replace(/\*$/, ''), tint: f.endsWith('*') }; }), tint, { cls: cols ? 'sheet' : '', cols });
+  };
+  const defFence = md.renderer.rules.fence;
+  md.renderer.rules.fence = (tokens, idx, opts, env, self) => {
+    const t = tokens[idx];
+    const lang = t.info.trim();
+    if (lang === 'flow') {
+      let title = '';
+      const steps = [];
+      for (const l of t.content.split('\n').map((x) => x.trim()).filter(Boolean)) {
+        const m = /^title:\s*(.+)$/i.exec(l);
+        if (m) { title = m[1]; continue; }
+        const [head, note = ''] = l.replace(/^->\s*/, '').split('|').map((x) => x.trim());
+        const sm = /\{([^}]+)\}/.exec(head);
+        steps.push({ text: head.replace(/\{[^}]+\}/, '').trim(), spr: sm ? sm[1] : '', note });
+      }
+      return `<figure class="flow">${title ? `<figcaption>${esc(title)}</figcaption>` : ''}<ol>${steps.map((x) => `<li>${x.spr ? flowSpr(x.spr, env.tint) : ''}<strong>${esc(x.text)}</strong>${x.note ? `<span>${esc(x.note)}</span>` : ''}</li>`).join('')}</ol></figure>`;
+    }
+    if (lang === 'hive') {
+      let p = null;
+      try { p = JSON.parse(t.content); } catch { /* показываем как обычный код */ }
+      if (p) {
+        const num = (v, d) => (Number.isFinite(+v) && +v > 0 ? +v : d);
+        const safe = { start: num(p.start, 5), perFrame: num(p.perFrame, 5), maxFrames: Math.min(num(p.maxFrames, 4), 12), layMinutes: num(p.layMinutes, 1), eggMinutes: num(p.eggMinutes, 3), cols: num(p.cols, 1), bee: /^media\/[\w./-]+$/.test(p.bee || '') ? base + p.bee : '' };
+        return `<div class="hive-sim" data-p="${esc(JSON.stringify(safe))}"><p class="muted">Здесь интерактивная модель роста колонии. Для неё нужен JavaScript.</p></div>`;
+      }
+    }
+    return defFence(tokens, idx, opts, env, self);
+  };
+  md.renderer.rules.code_inline = (tokens, idx) => {
+    const c = tokens[idx].content;
+    return /^#[0-9a-fA-F]{6}$/.test(c) ? `<code class="sw"><i style="background:${c}"></i>${c}</code>` : `<code>${esc(c)}</code>`;
+  };
   md.renderer.rules.heading_open = (tokens, idx, opts, env, self) => {
     const t = tokens[idx];
     const text = tokens[idx + 1].children.filter((c) => c.type === 'text' || c.type === 'code_inline').map((c) => c.content).join('');
@@ -65,7 +103,8 @@ export function buildSite({ contentDir, outDir, base = '/' } = {}) {
   // Рабочие названия разделов базы знаний читателю сайта показываются человеческими словами.
   const HEADINGS = { 'Предлагаемые механики': 'Как это работает', 'Известные факты': 'Что уже известно', 'Суть': 'Коротко', 'Назначение': 'Зачем это нужно', 'Следующий шаг': 'Что дальше' };
   const friendly = (src) => String(src || '').replace(/^## (.+)$/gm, (m, t) => (HEADINGS[t.trim()] ? '## ' + HEADINGS[t.trim()] : m));
-  const render = (src) => { const env = {}; const html = md.render(friendly(src), env); return { html, toc: env.toc || [] }; };
+  const render = (src, tint = '#E8A21C') => { const env = { tint }; const html = md.render(friendly(src), env); return { html, toc: env.toc || [] }; };
+  const tintOf = (p) => p?.showcase?.tint || '#E8A21C';
   const plain = (src) => md.render(src || '').replace(/<[^>]+>/g, ' ').replace(/&(?:amp|lt|gt|quot|#39);/g, ' ').replace(/\s+/g, ' ').trim();
 
   // --- общие блоки ---
@@ -146,6 +185,21 @@ ${nodes.map((e) => { const p0 = pos.get(e.id); return `<a class="gnode${e.id ===
 <p class="graph-legend muted small">Слева основа, справа то, что на ней построено. ${used.map((r) => `<span><i class="lg r-${esc(r)}"></i>${esc(REL_NOTE[r] || r)}</span>`).join('')}</p>`;
   };
 
+  const feedOf = (ents) => {
+    const seen = new Set();
+    const out = [];
+    for (const e of [...ents].sort((a, b) => (a.type === 'mechanic' ? 0 : 1) - (b.type === 'mechanic' ? 0 : 1))) {
+      for (const c of e.code_refs) {
+        if (!c.merged_at || seen.has(c.url)) continue;
+        seen.add(c.url);
+        out.push({ date: c.merged_at.slice(0, 10), title: c.title || e.title, e, url: c.url, ref: `${c.repo.split('/')[1]}${c.kind === 'pr' ? ' #' + c.ref : ''}` });
+      }
+      if (e.type === 'devlog') out.push({ date: e.created, title: e.title, e, url: null, text: e.summary });
+    }
+    return out.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+  };
+  const feedList = (items) => `<ol class="feed">${items.map((i) => `<li>${ico(i.e) || '<span class="feed-dot"></span>'}<div class="card-body"><time class="muted small" datetime="${esc(i.date)}">${fmtDate(i.date)}</time><strong>${esc(i.title)}</strong><span class="feed-meta">${i.text ? esc(i.text) : `<a href="${urlOf(i.e)}">${esc(i.e.title)}</a>`}${i.url ? ` · <a class="ext" rel="noopener" href="${esc(i.url)}">${esc(i.ref)}</a>` : ''}</span></div></li>`).join('')}</ol>`;
+
   const showcaseBlock = (p, { self = false } = {}) => {
     const s = p.showcase;
     const target = s.entity && byId.get(s.entity);
@@ -179,7 +233,8 @@ ${nodes.map((e) => { const p0 = pos.get(e.id); return `<a class="gnode${e.id ===
         ['kb/', 'Каталог', ents.some((e) => dirOf(e) === 'kb')],
         ['roadmap/', 'Roadmap', ents.some((e) => e.roadmap)],
         ['map/', 'Карта', ents.some((e) => e.links.some((l) => byId.get(l.to)?.project === project.id))],
-        ['devlog/', 'Devlog', ents.some((e) => e.type === 'devlog')],
+        ['devlog/', 'Лента', ents.some((e) => e.type === 'devlog' || e.code_refs.some((c) => c.merged_at))],
+        ['why/', 'Почему так', ents.some((e) => e.type === 'decision')],
         ['code/', 'Код и задачи', ents.some((e) => e.code_refs.length || e.type === 'task')],
       ].filter((t) => t[2]);
       sub = `<nav class="subnav" aria-label="Разделы проекта"><div class="wrap"><span class="subnav-title">${esc(project.title)}</span>${tabs.map(([s, l]) => `<a href="${purl(project, s)}"${tab === s ? ' aria-current="page"' : ''}>${l}</a>`).join('')}</div></nav>`;
@@ -238,6 +293,7 @@ ${body}
   // Первый экран: кто автор и один крупный материал, который хочется открыть. Остальные проекты показаны компактно.
   const recent = [...snap.entities].sort((a, b) => (a.updated < b.updated ? 1 : a.updated > b.updated ? -1 : a.title.localeCompare(b.title))).slice(0, 5);
   const featured = snap.projects.find((p) => p.showcase);
+  const homeFeed = feedOf(snap.entities);
   const others = snap.projects.filter((p) => p !== featured);
   put('index.html', layout({
     title: site.title, description: site.intro, wide: true,
@@ -248,8 +304,8 @@ ${body}
 </section>
 ${featured ? showcaseBlock(featured) : ''}
 <div class="home-cols">
-<section><h2>Что нового</h2>
-${recent.length ? `<ul class="news">${recent.map((e) => `<li>${ico(e)}<div class="card-body"><a href="${urlOf(e)}"><strong>${esc(e.title)}</strong></a>${e.summary ? `<p>${esc(e.summary)}</p>` : ''}<time class="muted small" datetime="${esc(e.updated)}">${fmtDate(e.updated)}</time></div></li>`).join('')}</ul>` : '<p class="muted">Опубликованных материалов пока нет.</p>'}
+<section><h2>${homeFeed.length ? 'Что появилось в игре' : 'Что нового'}</h2>
+${homeFeed.length ? feedList(homeFeed.slice(0, 5)) : recent.length ? `<ul class="news">${recent.map((e) => `<li>${ico(e)}<div class="card-body"><a href="${urlOf(e)}"><strong>${esc(e.title)}</strong></a>${e.summary ? `<p>${esc(e.summary)}</p>` : ''}</div></li>`).join('')}</ul>` : '<p class="muted">Опубликованных материалов пока нет.</p>'}
 </section>
 <aside class="home-side">
 ${others.length || !featured ? `<section><h2>${featured ? 'Ещё проекты' : 'Проекты'}</h2><ul class="proj-list">${(featured ? others : snap.projects).map((p) => `<li><a href="${purl(p)}"><strong>${esc(p.title)}</strong></a><span class="muted">${esc(p.tagline)}</span></li>`).join('') || '<li class="muted">Проектов пока нет.</li>'}</ul></section>` : ''}
@@ -271,7 +327,7 @@ ${site.feedback_note ? `<p class="muted small feedback">${esc(site.feedback_note
     const devlog = ents.filter((e) => e.type === 'devlog').sort((a, b) => (a.created < b.created ? 1 : -1));
     const road = ents.filter((e) => e.roadmap);
     const stale = ents.filter((e) => e.stale.length);
-    const pr = render(p.body);
+    const pr = render(p.body, tintOf(p));
     const empty = `<div class="notice">Материалы по этому проекту ещё не опубликованы. Страница появится в полном виде, когда записи будут добавлены в базу знаний и разрешены к публикации.</div>`;
 
     put(`projects/${p.id}/index.html`, layout({
@@ -318,10 +374,21 @@ ${groups.map(([t, l]) => `<section id="${t}"><h2>${esc(ENTITY_TYPES[t].plural)}<
         body: `<header class="page-head"><h1>Карта связей</h1><p class="lead">Как механики, статьи и решения проекта держатся друг за друга. Каждая карточка открывает запись.</p></header>${map}`,
       }));
     }
-    if (devlog.length) {
+    const feed = feedOf(ents);
+    if (feed.length) {
       put(`projects/${p.id}/devlog/index.html`, layout({
-        title: `Devlog, ${p.title}`, project: p, tab: 'devlog/',
-        body: `<header class="page-head"><h1>Devlog</h1></header><ul class="changes">${devlog.map((e) => `<li><time datetime="${esc(e.created)}">${fmtDate(e.created)}</time><a href="${urlOf(e)}">${esc(e.title)}</a><span class="muted">${esc(e.summary)}</span></li>`).join('')}</ul>`,
+        title: `Лента · ${p.title}`, project: p, tab: 'devlog/',
+        body: `<header class="page-head"><h1>Лента изменений</h1><p class="lead">Что и когда попало в игру. Записи появляются сами, когда связанный PR вливается в основную ветку.</p></header>${feedList(feed)}`,
+      }));
+    }
+    // "Почему так": принятые решения и варианты, от которых отказались.
+    const decisions = ents.filter((e) => e.type === 'decision').sort((a, b) => (a.updated < b.updated ? 1 : -1));
+    if (decisions.length) {
+      const rejected = (e) => (/(?:^|\n)## Отклонённые варианты\s*\n([\s\S]*?)(?=\n## |$)/.exec(e.body) || [])[1] || '';
+      put(`projects/${p.id}/why/index.html`, layout({
+        title: `Почему так · ${p.title}`, project: p, tab: 'why/',
+        body: `<header class="page-head"><h1>Почему так</h1><p class="lead">Решения, которые определили механики, и варианты, от которых я отказался, с причинами.</p></header>
+<div class="why">${decisions.map((e) => `<article class="why-card"><h2><a href="${urlOf(e)}">${esc(e.title)}</a></h2>${e.summary ? `<p class="lead">${esc(e.summary)}</p>` : ''}${rejected(e) ? `<div class="why-no"><p class="eyebrow">Не сделали</p><div class="prose">${render(rejected(e), tintOf(p)).html}</div></div>` : ''}</article>`).join('')}</div>`,
       }));
     }
     const withCode = ents.filter((e) => e.code_refs.length);
@@ -339,7 +406,7 @@ ${tasks.length ? `<section><h2>Задачи</h2><div class="grid">${tasks.map((e
 
     // --- страницы записей ---
     for (const e of ents) {
-      const r = render(e.body);
+      const r = render(e.body, tintOf(p));
       const out = e.links.map((l) => ({ label: LINK_RELS[l.rel]?.label || l.rel, e: byId.get(l.to), note: l.note }));
       const inc = (backlinks.get(e.id) || []).map((l) => ({ label: LINK_RELS[l.rel]?.inverse || l.rel, e: byId.get(l.from), note: l.note }));
       const rel = [...out, ...inc].filter((x) => x.e);
@@ -352,8 +419,8 @@ ${tasks.length ? `<section><h2>Задачи</h2><div class="grid">${tasks.map((e
 ${r.toc.length > 1 ? `<details class="toc" open><summary>На странице</summary><ul>${r.toc.map((t) => `<li class="t${t.level}"><a href="#${t.id}">${esc(t.text)}</a></li>`).join('')}</ul></details>` : ''}
 ${stateRows && !isArticle ? `<section class="side-block"><h2>Состояние</h2><dl class="states">${stateRows}</dl></section>` : ''}
 ${e.code_refs.length ? `<section class="side-block"><h2>Код и задачи</h2><ul class="refs">${e.code_refs.map((c) => `<li>${refLine(c)}</li>`).join('')}</ul></section>` : ''}
-${e.references.length ? `<section class="side-block"><h2>Источники</h2><ul>${e.references.map((x) => `<li><a class="ext" rel="noopener" href="${esc(x.url)}">${esc(x.title)}</a></li>`).join('')}</ul></section>` : ''}
-<section class="side-block meta"><p>Обновлено ${fmtDate(e.updated)} · ревизия ${e.revision}</p>${e.docs_reviewed ? `<p>Сверено с кодом ${fmtDate(e.docs_reviewed)}</p>` : ''}<p><a href="${base}e/${e.id}/">Постоянная ссылка</a></p></section>`;
+${e.references.length ? `<section class="side-block"><h2>По теме</h2><ul class="src-list">${e.references.map((x) => `<li><a class="src" rel="noopener" href="${esc(x.url)}"><strong>${esc(x.title)}</strong><small>${esc(new URL(x.url).hostname.replace(/^www\./, ''))}</small></a></li>`).join('')}</ul></section>` : ''}
+<section class="side-block"><h2>О странице</h2><dl class="meta-list"><div><dt>Обновлено</dt><dd>${fmtDate(e.updated)}</dd></div>${e.docs_reviewed ? `<div><dt>Сверено с игрой</dt><dd class="${e.stale.length ? 'v-stale' : 'v-ok'}">${fmtDate(e.docs_reviewed)}</dd></div>` : ''}<div><dt>Правок</dt><dd>${e.revision}</dd></div></dl><p class="small"><a href="${base}e/${e.id}/">Постоянная ссылка</a></p></section>`;
       put(`projects/${p.id}/${dirOf(e)}/${e.slug}/index.html`, layout({
         title: e.title, description: e.summary, project: p, tab: `${dirOf(e)}/`, wide: true,
         body: `<header class="rec-head${e.icon ? ' has-art' : ''}">
@@ -370,6 +437,7 @@ ${hasNav ? `<nav class="doc-nav" aria-label="Статьи Wiki"><details open><s
 <article class="doc-main">
 ${e.stale.length ? `<aside class="stale" role="note"><strong>Страница может быть устаревшей.</strong> После последней сверки (${fmtDate(e.docs_reviewed)}) изменился связанный код:<ul>${e.stale.map((s) => `<li>${s.url ? `<a class="ext" rel="noopener" href="${esc(s.url)}">${esc(s.repo)} ${s.kind === 'pr' ? '#' : ''}${esc(s.ref)}</a>${s.title ? `, ${esc(s.title)}` : ''}, ${fmtDate(s.date)}` : `связанное изменение от ${fmtDate(s.date)}`}</li>`).join('')}</ul></aside>` : ''}
 <div class="prose">${r.html || '<p class="muted">Текст ещё не написан.</p>'}</div>
+${(e.changes || []).length ? `<section class="changes-ba"><h2>Что изменилось</h2>${e.changes.map((ch) => { const c = e.code_refs.find((x) => String(x.ref) === String(ch.ref)); return `<div class="ba"><p class="ba-head">${c ? `<a class="ext" rel="noopener" href="${esc(c.url)}">${esc(c.repo.split('/')[1])} #${esc(c.ref)}</a>${c.merged_at ? ` · в игре с ${fmtDate(c.merged_at.slice(0, 10))}` : ''}` : esc(ch.title || '')}</p><div class="table-wrap"><table><thead><tr><th>Что</th><th>Было</th><th>Стало</th></tr></thead><tbody>${ch.items.map((i) => `<tr><td>${esc(i.what)}</td><td class="ba-before">${esc(i.before)}</td><td class="ba-after">${esc(i.after)}</td></tr>`).join('')}</tbody></table></div></div>`; }).join('')}</section>` : ''}
 ${rel.length ? `<section class="related"><div class="sec-head"><h2>Связи</h2><a href="${purl(p, 'map/')}">Вся карта проекта →</a></div>${graphBlock([e, ...new Set(rel.map((x) => x.e))], { current: e.id, label: `Связи записи "${e.title}"` })}</section>` : ''}
 </article>
 <aside class="doc-side">${side}</aside>

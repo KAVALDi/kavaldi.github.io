@@ -121,6 +121,10 @@ export function buildPublicSnapshot(store) {
       .replace(/\[\[([a-z]+-[a-z0-9]{6,})(?:\|([^\]]+))?\]\]/g, (m, id, t) => (pub.has(id) ? `[${t || store.entities.get(id).title}](hub:${id})` : (t || '')))
       .replace(/\[([^\]]+)\]\(hub:([a-z]+-[a-z0-9]{6,})\)/g, (m, t, id) => (pub.has(id) ? m : t));
     for (const m of body.matchAll(/!\[[^\]]*\]\((media\/[^)\s]+)\)/g)) media.set(m[1], e.id);
+    // Спрайты внутри схем (```flow) и моделей (```hive) тоже проходят проверку атрибуции.
+    for (const block of body.matchAll(/^```(?:flow|hive)\n([\s\S]*?)^```/gm)) {
+      for (const m of block[1].matchAll(/media\/[\w./-]+?\.(?:png|gif|webp|jpg)/g)) mediaFile(m[0], `записи ${e.id}`);
+    }
     const stale = staleness(store, e);
     return {
       id: e.id, type: e.type, project: e.project, title: e.title, slug: e.slug, aliases: e.aliases,
@@ -132,6 +136,9 @@ export function buildPublicSnapshot(store) {
         merged_at: c.merged_at || null, url: codeRefUrl(c), ...(c.path ? { path: c.path } : {}), ...(c.note ? { note: c.note } : {}),
       })),
       references: e.references.map((r) => ({ title: r.title || r.url, url: r.url })),
+      // "Было и стало" по конкретному PR. Показывается только для кода из публичных репозиториев.
+      changes: (Array.isArray(e.changes) ? e.changes : []).filter((ch) => e.code_refs.some((c) => String(c.ref) === String(ch.ref) && publicRepos.has(c.repo)))
+        .map((ch) => ({ ref: String(ch.ref), items: (ch.items || []).map((i) => ({ what: String(i.what || ''), before: String(i.before ?? '-'), after: String(i.after ?? '-') })) })),
       ingame_url: e.ingame_url || null,
       // Иконка записи из игровых спрайтов (те же правила атрибуции, что и у витрины).
       icon: e.icon && Array.isArray(e.icon.layers) && e.icon.layers.length ? { layers: e.icon.layers.map((l) => layer(l, `записи ${e.id}`)), cols: Number(e.icon.cols) || 0, tint: tintOf(store.projects.get(e.project)) } : null,
