@@ -244,6 +244,13 @@ export function buildProposal(store, draft, { action, target }) {
       const baseBody = prior.generated_body ?? buildDraftBody(store.sourceText(prior.id) || '');
       const m = merge3(baseBody, en.body, buildDraftBody(text));
       body = m.text; conflicts = m.conflicts; mergeMode = 'three-way';
+      // Расхождения не должны пропасть после одобрения: они записываются во внутренний раздел записи
+      // (на сайт он не попадает), где владелец разберёт их, когда ему удобно.
+      if (conflicts.length) {
+        const quote = (s) => (s ? s.split('\n').map((l) => `  > ${l}`).join('\n') : '  > (пусто)');
+        body += `\n\n## Расхождения с источником "${draft.source.title}" (внутреннее)\n\nВ этих местах запись была изменена вручную, а новая версия источника говорит другое. В тексте оставлен вариант записи.\n\n`
+          + conflicts.map((c, i) => `${i + 1}. В записи:\n${quote(c.ours)}\n\n   В новой версии источника:\n${quote(c.theirs)}`).join('\n\n');
+      }
     } else {
       body = `${en.body}\n\n## Дополнение из импорта: ${draft.source.title}\n\n${demote(stripFrontmatter(text))}`;
       mergeMode = 'append';

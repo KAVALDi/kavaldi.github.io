@@ -43,7 +43,8 @@ function ask(title, text, okLabel) {
 }
 const opt = (value, label, sel) => h('option', { value, selected: sel === value }, label);
 const select = (map, sel, attrs = {}, labelOf = (v) => v) => h('select', attrs, Object.entries(map).map(([k, v]) => opt(k, labelOf(v), sel)));
-const field = (label, control) => h('div', {}, h('label', {}, label), control);
+// Поле внутри label: подпись связана с полем для программ чтения с экрана и клика по подписи.
+const field = (label, control) => h('label', { class: 'field' }, h('span', { class: 'cap' }, label), control);
 const typeLabel = (t) => S.schema.types[t]?.label || t;
 const projTitle = (id) => S.projects.find((p) => p.id === id)?.title || id || '-';
 const fmt = (iso) => (iso ? new Date(iso).toLocaleString('ru-RU', { dateStyle: 'medium', timeStyle: iso.length > 10 ? 'short' : undefined }) : '');

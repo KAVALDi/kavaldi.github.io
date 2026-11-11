@@ -101,6 +101,8 @@ test('новая версия материала: обновление чере�
   assert.match(v2.proposal.body, /Проверить слышимость сирены/, 'новый раздел из второй версии добавлен');
   assert.match(v2.proposal.body, /двадцать пять клеток/, 'при конфликте остаётся вариант владельца');
   assert.equal(v2.proposal.conflicts.length, 1);
+  assert.match(v2.proposal.body, /## Расхождения с источником .*\(внутреннее\)[\s\S]*тридцать клеток/, 'расхождение сохраняется в записи');
+  assert.doesNotMatch(sanitizeBody(v2.proposal.body), /Расхождения|тридцать/, 'но на сайт не попадает');
   assert.match(v2.proposal.conflicts[0].theirs, /тридцать клеток/);
   assert.ok(v2.proposal.diff.some((l) => l.op === '+'));
   const updated = approve(store, v2.id, { action: 'update', entity: v2.proposal }).entity;
