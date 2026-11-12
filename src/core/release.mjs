@@ -19,7 +19,7 @@ export function release(store, repoRoot, { base, previewBase } = {}) {
   const tmp = path.join(repoRoot, '.cache', 'release');
   fs.rmSync(tmp, { recursive: true, force: true });
   fs.mkdirSync(path.join(tmp, 'content'), { recursive: true });
-  for (const keep of ['site.json', 'activity.json']) {
+  for (const keep of ['site.json', 'activity.json', 'feedback.json']) {
     if (fs.existsSync(path.join(contentDir, keep))) fs.copyFileSync(path.join(contentDir, keep), path.join(tmp, 'content', keep));
   }
   const snap = buildPublicSnapshot(store);

@@ -10,7 +10,8 @@ import { exportPublic } from './core/exporter.mjs';
 import { checkPrivacy } from './core/privacy.mjs';
 import { release, siteConfig } from './core/release.mjs';
 import { buildSite } from './site/build.mjs';
-import { fetchActivity, syncCodeRefs } from './core/github.mjs';
+import { fetchActivity, syncCodeRefs, fetchFeedback, syncDiscussions } from './core/github.mjs';
+import { readSnapshot } from './core/exporter.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const argv = process.argv.slice(2);
@@ -49,6 +50,8 @@ const HELP = `hub: Developer Knowledge Hub
     serve [--port 4320]        посмотреть собранный dist/ локально
     activity                   получить календарь активности GitHub в content/activity.json
     sync                       сверить ссылки на PR/Issue/коммиты с GitHub
+    feedback                   получить оценки и число комментариев из GitHub Discussions
+    discuss [--create]         показать (или создать) обсуждения для опубликованных идей и механик
 
   Студия
     studio [--port 4319]       локальный интерфейс: импорт, черновики, редактор, выпуск
@@ -131,6 +134,24 @@ const commands = {
     fs.writeFileSync(path.join(content, 'activity.json'), JSON.stringify(a) + '\n');
     say(`Активность ${login}: ${a.total} за год, дней ${a.days.length} → content/activity.json`);
   },
+  async feedback() {
+    const cfg = siteConfig(ROOT).feedback;
+    if (!cfg?.repo) throw new StoreError('В hub.config.json не задан feedback.repo.');
+    const f = await fetchFeedback(cfg.repo);
+    fs.writeFileSync(path.join(content, 'feedback.json'), JSON.stringify(f) + '\n');
+    say(`Оценки: связанных с записями обсуждений ${Object.keys(f.items).length} → content/feedback.json`);
+  },
+  async discuss() {
+    const cfg = siteConfig(ROOT);
+    if (!cfg.feedback?.repo || !cfg.siteUrl) throw new StoreError('В hub.config.json нужны feedback.repo и siteUrl.');
+    const types = cfg.feedback.types || ['idea', 'mechanic'];
+    const entities = readSnapshot(content).entities.filter((e) => types.includes(e.type));
+    const r = await syncDiscussions({ repo: cfg.feedback.repo, category: cfg.feedback.category || 'Ideas', entities, siteUrl: cfg.siteUrl, create: flags.create === true });
+    say(`Обсуждений уже есть: ${r.existing}. Не хватает: ${r.missing.length}`);
+    for (const m of r.missing) say(`  ${flags.create === true ? '+' : '·'} ${m.id}  ${m.title}`);
+    if (flags.create !== true && r.missing.length) say('Это только план. Создать обсуждения (публично, от вашего имени): hub discuss --create');
+    for (const c of r.created) say(`  создано: ${c.url}`);
+  },
   async sync() {
     const r = await syncCodeRefs(open(), { log: say });
     say(`Сверено ссылок: ${r.checked}. Обновлено записей: ${r.updated.length}. Ошибок: ${r.failed.length}`);
@@ -166,6 +187,6 @@ try {
   else await commands[cmd]();
 } catch (e) {
   if (e instanceof StoreError) { console.error(`Ошибка: ${e.message}`); if (Array.isArray(e.details)) for (const d of e.details.slice(0, 20)) console.error(`  ${d.file || ''} ${(d.messages || [d]).join?.('; ') ?? d}`); }
-  else console.error(e);
+  else console.error(`Ошибка: ${e.message}`);
   process.exitCode = 1;
 }

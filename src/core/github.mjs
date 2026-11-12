@@ -83,3 +83,71 @@ export async function syncCodeRefs(store, { log = () => {} } = {}) {
   if (result.updated.length) store.commit(`Сверка с GitHub: обновлено записей: ${result.updated.length}`);
   return result;
 }
+
+// --- Оценки и обсуждения через GitHub Discussions ---
+// У записи одно обсуждение. Связь по метке <!-- hub:ID --> в его тексте. Голос это реакция на GitHub
+// (один на аккаунт), сайт показывает счётчики, полученные при сборке. Своего хранилища голосов нет.
+export const VOTE_REACTIONS = { THUMBS_UP: 'like', CONFUSED: 'ok', THUMBS_DOWN: 'dislike' };
+const MARK = /<!--\s*hub:([a-z]+-[a-z0-9]{6,})\s*-->/;
+
+async function gql(query, variables) {
+  if (!githubToken()) throw new Error('Нет токена GitHub (GITHUB_TOKEN или gh auth login).');
+  const r = await gh('graphql', { method: 'POST', body: { query, variables } });
+  if (r.errors?.length) throw new Error(`GitHub GraphQL: ${r.errors[0].message}`);
+  return r.data;
+}
+
+/** Разбирает узлы обсуждений в { [id записи]: { url, like, ok, dislike, comments } }. Вынесено для тестов. */
+export function parseDiscussions(nodes) {
+  const items = {};
+  for (const d of nodes || []) {
+    const m = MARK.exec(d.body || '');
+    if (!m || items[m[1]]) continue;
+    const v = { url: d.url, like: 0, ok: 0, dislike: 0, comments: d.comments?.totalCount || 0 };
+    for (const g of d.reactionGroups || []) if (VOTE_REACTIONS[g.content]) v[VOTE_REACTIONS[g.content]] = g.reactors?.totalCount ?? 0;
+    items[m[1]] = v;
+  }
+  return items;
+}
+
+async function loadDiscussions(repo) {
+  const [owner, name] = repo.split('/');
+  const data = await gql(`query($owner:String!,$name:String!){repository(owner:$owner,name:$name){id hasDiscussionsEnabled
+    discussionCategories(first:25){nodes{id name}}
+    discussions(first:100,orderBy:{field:CREATED_AT,direction:DESC}){nodes{number url title body comments{totalCount} reactionGroups{content reactors{totalCount}}}}}}`, { owner, name });
+  const r = data?.repository;
+  if (!r) throw new Error(`Репозиторий ${repo} не найден.`);
+  if (!r.hasDiscussionsEnabled) throw new Error(`В репозитории ${repo} не включены Discussions.`);
+  return r;
+}
+
+export async function fetchFeedback(repo) {
+  const r = await loadDiscussions(repo);
+  return { repo, fetched_at: new Date().toISOString(), source: 'GitHub Discussions', items: parseDiscussions(r.discussions.nodes) };
+}
+
+/** Текст обсуждения для записи. Содержит только то, что уже опубликовано на сайте. */
+export function discussionBody(entity, siteUrl) {
+  return `${entity.summary || entity.title}\n\nСтраница на сайте: ${siteUrl}e/${entity.id}/\n\nКак проголосовать: поставьте реакцию под этим сообщением: 👍 нравится, 😕 нормально, 👎 не нравится. Комментарии приветствуются.\n\n<!-- hub:${entity.id} -->`;
+}
+
+/**
+ * Создаёт недостающие обсуждения для опубликованных записей. Работает по публичному снимку, а не по хранилищу.
+ * Без create: true ничего не создаёт и только возвращает план.
+ */
+export async function syncDiscussions({ repo, category, entities, siteUrl, create = false }) {
+  const r = await loadDiscussions(repo);
+  const cat = r.discussionCategories.nodes.find((c) => c.name.toLowerCase() === String(category).toLowerCase());
+  if (!cat) throw new Error(`В ${repo} нет категории обсуждений "${category}". Есть: ${r.discussionCategories.nodes.map((c) => c.name).join(', ')}.`);
+  const have = parseDiscussions(r.discussions.nodes);
+  const missing = entities.filter((e) => !have[e.id]);
+  const created = [];
+  if (create) {
+    for (const e of missing) {
+      const d = await gql('mutation($r:ID!,$c:ID!,$t:String!,$b:String!){createDiscussion(input:{repositoryId:$r,categoryId:$c,title:$t,body:$b}){discussion{url}}}',
+        { r: r.id, c: cat.id, t: e.title, b: discussionBody(e, siteUrl) });
+      created.push({ id: e.id, url: d.createDiscussion.discussion.url });
+    }
+  }
+  return { existing: Object.keys(have).length, missing: missing.map((e) => ({ id: e.id, title: e.title })), created };
+}

@@ -217,11 +217,13 @@ export function readSnapshot(contentDir) {
   const manifest = fs.existsSync(mf) ? JSON.parse(fs.readFileSync(mf, 'utf8')) : { credits: [] };
   const af = path.join(contentDir, 'activity.json');
   const sf = path.join(contentDir, 'site.json');
+  const ff = path.join(contentDir, 'feedback.json');
   return {
     projects: read('projects').sort((a, b) => a.order - b.order || a.id.localeCompare(b.id)),
     entities: read('entities'),
     credits: manifest.credits || [],
     activity: fs.existsSync(af) ? JSON.parse(fs.readFileSync(af, 'utf8')) : null,
+    feedback: fs.existsSync(ff) ? JSON.parse(fs.readFileSync(ff, 'utf8')) : null,
     site: fs.existsSync(sf) ? JSON.parse(fs.readFileSync(sf, 'utf8')) : {},
   };
 }

@@ -185,6 +185,16 @@ ${nodes.map((e) => { const p0 = pos.get(e.id); return `<a class="gnode${e.id ===
 <p class="graph-legend muted small">Слева основа, справа то, что на ней построено. ${used.map((r) => `<span><i class="lg r-${esc(r)}"></i>${esc(REL_NOTE[r] || r)}</span>`).join('')}</p>`;
   };
 
+  const votes = snap.feedback?.items || {};
+  const voteBlock = (e) => {
+    const v = votes[e.id];
+    if (!v) return '';
+    const total = v.like + v.ok + v.dislike;
+    const bar = (n, cls, label, emoji) => `<div class="vote ${cls}"><span class="vote-e" aria-hidden="true">${emoji}</span><strong>${n}</strong><span>${label}</span><i style="--w:${total ? Math.round((n / total) * 100) : 0}%"></i></div>`;
+    return `<section class="votes" aria-label="Оценки посетителей"><div class="sec-head"><h2>Как вам?</h2><a class="btn ext" rel="noopener" href="${esc(v.url)}">Проголосовать на GitHub</a></div>
+<div class="vote-row">${bar(v.like, 'v-like', 'нравится', '👍')}${bar(v.ok, 'v-ok', 'нормально', '😕')}${bar(v.dislike, 'v-dislike', 'не нравится', '👎')}</div>
+<p class="muted small">${total ? `Голосов: ${total}` : 'Голосов пока нет'} · комментариев: ${v.comments} · данные GitHub на ${fmtDate(snap.feedback.fetched_at.slice(0, 10))}. Голос это реакция под обсуждением, один на аккаунт. Оценки показывают мнение игроков и не меняют состояние механики.</p></section>`;
+  };
   const feedOf = (ents) => {
     const seen = new Set();
     const out = [];
@@ -437,6 +447,7 @@ ${hasNav ? `<nav class="doc-nav" aria-label="Статьи Wiki"><details open><s
 <article class="doc-main">
 ${e.stale.length ? `<aside class="stale" role="note"><strong>Страница может быть устаревшей.</strong> После последней сверки (${fmtDate(e.docs_reviewed)}) изменился связанный код:<ul>${e.stale.map((s) => `<li>${s.url ? `<a class="ext" rel="noopener" href="${esc(s.url)}">${esc(s.repo)} ${s.kind === 'pr' ? '#' : ''}${esc(s.ref)}</a>${s.title ? `, ${esc(s.title)}` : ''}, ${fmtDate(s.date)}` : `связанное изменение от ${fmtDate(s.date)}`}</li>`).join('')}</ul></aside>` : ''}
 <div class="prose">${r.html || '<p class="muted">Текст ещё не написан.</p>'}</div>
+${voteBlock(e)}
 ${(e.changes || []).length ? `<section class="changes-ba"><h2>Что изменилось</h2>${e.changes.map((ch) => { const c = e.code_refs.find((x) => String(x.ref) === String(ch.ref)); return `<div class="ba"><p class="ba-head">${c ? `<a class="ext" rel="noopener" href="${esc(c.url)}">${esc(c.repo.split('/')[1])} #${esc(c.ref)}</a>${c.merged_at ? ` · в игре с ${fmtDate(c.merged_at.slice(0, 10))}` : ''}` : esc(ch.title || '')}</p><div class="table-wrap"><table><thead><tr><th>Что</th><th>Было</th><th>Стало</th></tr></thead><tbody>${ch.items.map((i) => `<tr><td>${esc(i.what)}</td><td class="ba-before">${esc(i.before)}</td><td class="ba-after">${esc(i.after)}</td></tr>`).join('')}</tbody></table></div></div>`; }).join('')}</section>` : ''}
 ${rel.length ? `<section class="related"><div class="sec-head"><h2>Связи</h2><a href="${purl(p, 'map/')}">Вся карта проекта →</a></div>${graphBlock([e, ...new Set(rel.map((x) => x.e))], { current: e.id, label: `Связи записи "${e.title}"` })}</section>` : ''}
 </article>

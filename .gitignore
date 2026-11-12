@@ -5,3 +5,4 @@ hub.local.json
 content/activity.json
 *.tmp
 .env
+content/feedback.json

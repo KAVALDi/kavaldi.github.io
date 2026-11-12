@@ -334,3 +334,13 @@ code.sw i { width: .85rem; height: .85rem; border-radius: 3px; border: 1px solid
 .hive-frame { min-height: 3rem; align-items: center; padding: .5rem; }
 .hive-frame i.dot { transform: none; width: 70%; margin: auto; background: none; border: 2px solid var(--line-strong); opacity: 1; }
 .hive-frame i.dot.on { background: var(--honey); border-color: var(--honey); }
+
+/* Оценки посетителей (из GitHub Discussions). */
+.votes { margin-top: 2.5rem; padding: 1.1rem 1.3rem; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.votes .sec-head { margin-top: 0; }
+.vote-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; margin-bottom: .7rem; }
+.vote { position: relative; overflow: hidden; display: flex; flex-wrap: wrap; align-items: baseline; gap: .1rem .5rem; padding: .7rem .8rem; border-radius: 10px; background: var(--sunken); }
+.vote strong { font-size: 1.5rem; font-variant-numeric: tabular-nums; } .vote span { font-size: .88rem; color: var(--muted); }
+.vote i { position: absolute; left: 0; bottom: 0; height: 4px; width: var(--w); background: var(--line-strong); }
+.vote.v-like i { background: var(--ok); } .vote.v-ok i { background: var(--honey); } .vote.v-dislike i { background: var(--bad); }
+@media (max-width: 34rem) { .vote-row { grid-template-columns: minmax(0, 1fr); } }

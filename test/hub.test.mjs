@@ -13,6 +13,7 @@ import { checkPrivacy } from '../src/core/privacy.mjs';
 import { buildSite } from '../src/site/build.mjs';
 import { merge3, diffLines, shingleSimilarity } from '../src/core/text.mjs';
 import { createStudio } from '../src/studio/server.mjs';
+import { parseDiscussions, discussionBody } from '../src/core/github.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const note = (n) => fs.readFileSync(path.join(ROOT, 'examples', 'notes', n), 'utf8');
@@ -252,4 +253,21 @@ test('шинглы различают версию и посторонний т�
   assert.ok(shingleSimilarity(note('siren-v1.md'), note('siren-v2.md')) > 0.5);
   assert.ok(shingleSimilarity(note('siren-v1.md'), 'Совершенно другой текст про шахты, руду и вагонетки под землёй.') < 0.05);
   assert.equal(buildDraftBody('текст'), buildDraftBody('текст'), 'черновик детерминирован');
+});
+
+test('оценки: счётчики берутся из обсуждений GitHub, без данных блок не показывается', () => {
+  const { store, content, dist } = fresh();
+  const body = discussionBody({ id: 'mech-demo0001', title: 'Туман над маяком', summary: 'Кратко' }, 'https://example.com/');
+  const items = parseDiscussions([
+    { url: 'https://github.com/example/site/discussions/1', body, comments: { totalCount: 2 }, reactionGroups: [{ content: 'THUMBS_UP', reactors: { totalCount: 5 } }, { content: 'THUMBS_DOWN', reactors: { totalCount: 1 } }, { content: 'ROCKET', reactors: { totalCount: 9 } }] },
+    { url: 'https://github.com/example/site/discussions/2', body: 'обычное обсуждение без метки', reactionGroups: [] },
+  ]);
+  assert.deepEqual(items, { 'mech-demo0001': { url: 'https://github.com/example/site/discussions/1', like: 5, ok: 0, dislike: 1, comments: 2 } });
+  exportPublic(store, content);
+  buildSite({ contentDir: content, outDir: dist });
+  const page = () => fs.readFileSync(path.join(dist, 'projects/demo/kb/fog/index.html'), 'utf8');
+  assert.doesNotMatch(page(), /class="votes"/, 'нет данных: нет блока и нет выдуманных чисел');
+  fs.writeFileSync(path.join(content, 'feedback.json'), JSON.stringify({ repo: 'example/site', fetched_at: '2026-11-12T00:00:00Z', items }));
+  buildSite({ contentDir: content, outDir: dist });
+  assert.match(page(), /class="votes"[\s\S]*<strong>5<\/strong><span>нравится<\/span>[\s\S]*Голосов: 6 · комментариев: 2/);
 });
