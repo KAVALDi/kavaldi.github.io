@@ -114,7 +114,7 @@ async function loadDiscussions(repo) {
   const [owner, name] = repo.split('/');
   const data = await gql(`query($owner:String!,$name:String!){repository(owner:$owner,name:$name){id hasDiscussionsEnabled
     discussionCategories(first:25){nodes{id name}}
-    discussions(first:100,orderBy:{field:CREATED_AT,direction:DESC}){nodes{number url title body comments{totalCount} reactionGroups{content reactors{totalCount}}}}}}`, { owner, name });
+    discussions(first:100,orderBy:{field:CREATED_AT,direction:DESC}){nodes{id number url title body comments{totalCount} reactionGroups{content reactors{totalCount}}}}}}`, { owner, name });
   const r = data?.repository;
   if (!r) throw new Error(`Репозиторий ${repo} не найден.`);
   if (!r.hasDiscussionsEnabled) throw new Error(`В репозитории ${repo} не включены Discussions.`);
@@ -134,8 +134,9 @@ export function discussionBody(entity, siteUrl) {
 /**
  * Создаёт недостающие обсуждения для опубликованных записей. Работает по публичному снимку, а не по хранилищу.
  * Без create: true ничего не создаёт и только возвращает план.
+ * update: true переписывает заголовок и текст тех обсуждений, что разошлись с записью (реакции и комментарии остаются).
  */
-export async function syncDiscussions({ repo, category, entities, siteUrl, create = false }) {
+export async function syncDiscussions({ repo, category, entities, siteUrl, create = false, update = false }) {
   const r = await loadDiscussions(repo);
   const cat = r.discussionCategories.nodes.find((c) => c.name.toLowerCase() === String(category).toLowerCase());
   if (!cat) throw new Error(`В ${repo} нет категории обсуждений "${category}". Есть: ${r.discussionCategories.nodes.map((c) => c.name).join(', ')}.`);
@@ -149,5 +150,16 @@ export async function syncDiscussions({ repo, category, entities, siteUrl, creat
       created.push({ id: e.id, url: d.createDiscussion.discussion.url });
     }
   }
-  return { existing: Object.keys(have).length, missing: missing.map((e) => ({ id: e.id, title: e.title })), created };
+  const byMark = new Map(r.discussions.nodes.map((d) => [MARK.exec(d.body || '')?.[1], d]));
+  const outdated = entities.filter((e) => { const d = byMark.get(e.id); return d && (d.title !== e.title || d.body.trim() !== discussionBody(e, siteUrl)); });
+  const updated = [];
+  if (update) {
+    for (const e of outdated) {
+      const d = await gql('mutation($d:ID!,$t:String!,$b:String!){updateDiscussion(input:{discussionId:$d,title:$t,body:$b}){discussion{url}}}',
+        { d: byMark.get(e.id).id, t: e.title, b: discussionBody(e, siteUrl) });
+      updated.push({ id: e.id, url: d.updateDiscussion.discussion.url });
+    }
+  }
+  return { existing: Object.keys(have).length, missing: missing.map((e) => ({ id: e.id, title: e.title })), created,
+    outdated: outdated.map((e) => ({ id: e.id, title: e.title })), updated };
 }

@@ -51,7 +51,7 @@ const HELP = `hub: Developer Knowledge Hub
     activity                   получить календарь активности GitHub в content/activity.json
     sync                       сверить ссылки на PR/Issue/коммиты с GitHub
     feedback                   получить оценки и число комментариев из GitHub Discussions
-    discuss [--create]         показать (или создать) обсуждения для опубликованных идей и механик
+    discuss [--create] [--update]  показать, создать или обновить обсуждения опубликованных идей и механик
 
   Студия
     studio [--port 4319]       локальный интерфейс: импорт, черновики, редактор, выпуск
@@ -146,11 +146,15 @@ const commands = {
     if (!cfg.feedback?.repo || !cfg.siteUrl) throw new StoreError('В hub.config.json нужны feedback.repo и siteUrl.');
     const types = cfg.feedback.types || ['idea', 'mechanic'];
     const entities = readSnapshot(content).entities.filter((e) => types.includes(e.type));
-    const r = await syncDiscussions({ repo: cfg.feedback.repo, category: cfg.feedback.category || 'Ideas', entities, siteUrl: cfg.siteUrl, create: flags.create === true });
+    const r = await syncDiscussions({ repo: cfg.feedback.repo, category: cfg.feedback.category || 'Ideas', entities, siteUrl: cfg.siteUrl, create: flags.create === true, update: flags.update === true });
     say(`Обсуждений уже есть: ${r.existing}. Не хватает: ${r.missing.length}`);
     for (const m of r.missing) say(`  ${flags.create === true ? '+' : '·'} ${m.id}  ${m.title}`);
     if (flags.create !== true && r.missing.length) say('Это только план. Создать обсуждения (публично, от вашего имени): hub discuss --create');
     for (const c of r.created) say(`  создано: ${c.url}`);
+    if (r.outdated.length) say(`Текст разошёлся с записью: ${r.outdated.length}`);
+    for (const m of r.outdated) say(`  ${flags.update === true ? '~' : '·'} ${m.id}  ${m.title}`);
+    if (flags.update !== true && r.outdated.length) say('Обновить их текст (реакции и комментарии сохранятся): hub discuss --update');
+    for (const c of r.updated) say(`  обновлено: ${c.url}`);
   },
   async sync() {
     const r = await syncCodeRefs(open(), { log: say });
