@@ -1,0 +1,13 @@
+{
+  "base": "/",
+  "login": "KAVALDi",
+  "siteUrl": "https://kavaldi.github.io/",
+  "feedback": {
+    "repo": "KAVALDi/kavaldi.github.io",
+    "category": "Ideas",
+    "types": [
+      "idea",
+      "mechanic"
+    ]
+  }
+}

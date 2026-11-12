@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Студия · Knowledge Hub</title>
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<header class="bar">
+  <strong class="brand">Студия</strong>
+  <nav id="nav">
+    <a href="#/inbox" data-view="inbox">Импорт и разбор <span id="n-drafts" class="count"></span></a>
+    <a href="#/entities" data-view="entities">Записи</a>
+    <a href="#/release" data-view="release">Выпуск сайта</a>
+  </nav>
+  <span id="problems" class="problems"></span>
+</header>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<main id="app" class="app"><p class="muted">Загрузка…</p></main>
+<script src="/app.js"></script>
+</body>
+</html>

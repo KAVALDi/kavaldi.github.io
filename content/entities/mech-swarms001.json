@@ -1,0 +1,66 @@
+{
+  "id": "mech-swarms001",
+  "type": "mechanic",
+  "project": "redstar",
+  "title": "Рои и дикие ульи",
+  "slug": "swarms-wild-hives",
+  "aliases": [],
+  "summary": "Рой ищет место для новой колонии. Улей без рамок колония бросает и улетает строить дикий улей.",
+  "tags": [],
+  "states": {
+    "design": "accepted",
+    "implementation": "pr",
+    "verification": "tests",
+    "docs": "none"
+  },
+  "roadmap": {
+    "lane": "now",
+    "order": 1
+  },
+  "links": [
+    {
+      "rel": "depends-on",
+      "to": "mech-beekeep01"
+    },
+    {
+      "rel": "decided-by",
+      "to": "dec-noframes01"
+    }
+  ],
+  "code_refs": [
+    {
+      "repo": "red-star-server/RedStar",
+      "kind": "pr",
+      "ref": "153",
+      "title": "Пчеловодство: рои и дикие ульи",
+      "state": "open",
+      "merged_at": null,
+      "url": "https://github.com/red-star-server/RedStar/pull/153"
+    }
+  ],
+  "references": [],
+  "changes": [],
+  "ingame_url": null,
+  "icon": {
+    "layers": [
+      {
+        "file": "media/redstar/wild-beehive-base.png"
+      },
+      {
+        "file": "media/redstar/wild-beehive-honey.png",
+        "tint": true
+      },
+      {
+        "file": "media/redstar/wild-beehive-stripes.png"
+      }
+    ],
+    "cols": 0,
+    "tint": "#E8A21C"
+  },
+  "docs_reviewed": null,
+  "stale": [],
+  "created": "2026-11-11",
+  "updated": "2026-11-11",
+  "revision": 3,
+  "body": "## Суть\n\nКолония может покинуть улей роем и основать новую в подходящем месте станции.\n\n## Предлагаемые механики\n\n- Рой ищет место для новой колонии: шкаф или ящик.\n- Улей с маткой, но без рамок, через 3 минуты считается брошенным: матка и все пчёлы улетают роем. Если за это время вставить рамку, отсчёт сбрасывается.\n- При осмотре брошенного улья видно предупреждение и оставшееся время.\n- Дикий улей при изготовлении диких сот не расходует реагенты матки."
+}

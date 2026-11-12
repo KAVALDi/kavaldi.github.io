@@ -1,0 +1,41 @@
+name: Проверка
+
+on:
+  pull_request:
+  push:
+    branches-ignore: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      # Сборка идёт только из публичного снимка content/, приватное хранилище в CI не нужно.
+      - name: Календарь активности GitHub (сбой не останавливает сборку)
+        run: node src/cli.mjs activity || echo "::warning::Не удалось получить активность GitHub. Сайт покажет сообщение об отсутствии данных"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Оценки из GitHub Discussions (сбой не останавливает сборку)
+        run: node src/cli.mjs feedback || echo "::warning::Оценки не получены. Блок оценок на сайте не показывается"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: node src/cli.mjs build
+      - name: В сборке нет признаков секретов и локальных путей
+        run: |
+          if grep -rEl 'gh[opsu]_[A-Za-z0-9]{30,}|github_pat_|-----BEGIN [A-Z ]*PRIVATE KEY|[A-Za-z]:[\\/]+Users[\\/]' dist content; then
+            echo "::error::В публичных файлах найден секрет или локальный путь"; exit 1
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: dist
+          retention-days: 7

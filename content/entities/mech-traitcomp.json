@@ -1,0 +1,45 @@
+{
+  "id": "mech-traitcomp",
+  "type": "mechanic",
+  "project": "redstar",
+  "title": "Совместимость признаков",
+  "slug": "trait-compatibility",
+  "aliases": [],
+  "summary": "Удачные и неудачные сочетания признаков будут меняться между раундами.",
+  "tags": [],
+  "states": {
+    "design": "accepted",
+    "implementation": "none",
+    "verification": "none",
+    "docs": "none"
+  },
+  "roadmap": {
+    "lane": "next",
+    "order": 1
+  },
+  "links": [
+    {
+      "rel": "depends-on",
+      "to": "mech-traits001"
+    }
+  ],
+  "code_refs": [],
+  "references": [],
+  "changes": [],
+  "ingame_url": null,
+  "icon": {
+    "layers": [
+      {
+        "file": "media/redstar/honeycomb-icon.png"
+      }
+    ],
+    "cols": 0,
+    "tint": "#E8A21C"
+  },
+  "docs_reviewed": null,
+  "stale": [],
+  "created": "2026-11-11",
+  "updated": "2026-11-11",
+  "revision": 2,
+  "body": "## Суть\n\nКаждый раунд случайные пары признаков усиливают или ослабляют друг друга. Пара видна в анализаторе, когда раскрыты оба признака.\n\n## Открытые вопросы\n\n- Какими должны быть величины эффектов?\n- Как проверять повторяемость сочетаний в пределах раунда?"
+}
