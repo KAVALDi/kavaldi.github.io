@@ -193,7 +193,7 @@ ${nodes.map((e) => { const p0 = pos.get(e.id); return `<a class="gnode${e.id ===
     const bar = (n, cls, label, emoji) => `<div class="vote ${cls}"><span class="vote-e" aria-hidden="true">${emoji}</span><strong>${n}</strong><span>${label}</span><i style="--w:${total ? Math.round((n / total) * 100) : 0}%"></i></div>`;
     return `<section class="votes" aria-label="Оценки посетителей"><div class="sec-head"><h2>Как вам?</h2><a class="btn ext" rel="noopener" href="${esc(v.url)}">Проголосовать на GitHub</a></div>
 <div class="vote-row">${bar(v.like, 'v-like', 'нравится', '👍')}${bar(v.ok, 'v-ok', 'нормально', '😕')}${bar(v.dislike, 'v-dislike', 'не нравится', '👎')}</div>
-<p class="muted small">${total ? `Голосов: ${total}` : 'Голосов пока нет'} · комментариев: ${v.comments} · данные GitHub на ${fmtDate(snap.feedback.fetched_at.slice(0, 10))}. Голос это реакция под обсуждением, один на аккаунт. Оценки показывают мнение игроков и не меняют состояние механики.</p></section>`;
+<p class="muted small">${total ? `Голосов: ${total}` : 'Голосов пока нет'} · комментариев: ${v.comments} · данные GitHub на ${fmtDate(snap.feedback.fetched_at.slice(0, 10))} Голос это реакция под обсуждением, один на аккаунт. Оценки показывают мнение игроков и не меняют состояние механики.</p></section>`;
   };
   const feedOf = (ents) => {
     const seen = new Set();
