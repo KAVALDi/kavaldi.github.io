@@ -59,6 +59,36 @@
       spy();
     }
 
+    // Перетаскивание фона карты мышью. Ссылки и прокрутка касанием работают как обычно.
+    document.querySelectorAll('.graph-wrap').forEach((wrap) => {
+      const updateCursor = () => wrap.classList.toggle('is-pannable', wrap.scrollWidth > wrap.clientWidth);
+      new ResizeObserver(updateCursor).observe(wrap);
+      updateCursor();
+
+      let drag = null;
+      wrap.addEventListener('pointerdown', (event) => {
+        if (event.pointerType !== 'mouse' || event.button !== 0 || event.target.closest('a')) return;
+        if (wrap.scrollWidth <= wrap.clientWidth) return;
+        const contentTop = wrap.getBoundingClientRect().top + wrap.clientTop;
+        if (event.clientY >= contentTop + wrap.clientHeight) return;
+
+        event.preventDefault();
+        drag = { pointerId: event.pointerId, x: event.clientX };
+        wrap.setPointerCapture(event.pointerId);
+        wrap.classList.add('is-panning');
+      });
+      wrap.addEventListener('pointermove', (event) => {
+        if (drag?.pointerId !== event.pointerId) return;
+        wrap.scrollLeft += drag.x - event.clientX;
+        drag.x = event.clientX;
+      });
+      wrap.addEventListener('lostpointercapture', (event) => {
+        if (drag?.pointerId !== event.pointerId) return;
+        drag = null;
+        wrap.classList.remove('is-panning');
+      });
+    });
+
     // Длинные таблицы получают поле фильтра.
     document.querySelectorAll('.prose .table-wrap').forEach((wrap) => {
       const rows = [...wrap.querySelectorAll('tbody tr')];

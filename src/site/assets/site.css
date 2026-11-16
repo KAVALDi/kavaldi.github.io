@@ -239,6 +239,9 @@ tr:last-child td { border-bottom: 0; }
 
 /* Карта связей: карточки поверх SVG-линий. На узком экране прокручивается по горизонтали. */
 .graph-wrap { overflow-x: auto; padding: 1rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--sunken); }
+.graph-wrap.is-pannable { cursor: grab; }
+.graph-wrap.is-pannable .gnode { cursor: pointer; }
+.graph-wrap.is-panning, .graph-wrap.is-panning .gnode { cursor: grabbing; user-select: none; }
 .graph { position: relative; margin: 0 auto; }
 .graph svg { position: absolute; inset: 0; overflow: visible; }
 .ge { fill: none; stroke: var(--line-strong); stroke-width: 2; }
