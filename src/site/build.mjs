@@ -237,21 +237,38 @@ ${nodes.map((e) => { const p0 = pos.get(e.id); return `<a class="gnode${e.id ===
 </section>`;
   };
 
+  const projectTabs = (project) => {
+    const ents = ofProject(project.id);
+    return [
+      ['', 'Обзор', true],
+      ['wiki/', 'Wiki', ents.some((e) => e.type === 'article')],
+      ['kb/', 'Каталог', ents.some((e) => dirOf(e) === 'kb')],
+      ['roadmap/', 'Roadmap', ents.some((e) => e.roadmap)],
+      ['map/', 'Карта', ents.some((e) => e.links.some((l) => byId.get(l.to)?.project === project.id))],
+      ['devlog/', 'Лента', ents.some((e) => e.type === 'devlog' || e.code_refs.some((c) => c.merged_at))],
+      ['why/', 'Почему так', ents.some((e) => e.type === 'decision')],
+      ['code/', 'Код и задачи', ents.some((e) => e.code_refs.length || e.type === 'task')],
+    ].filter((t) => t[2]);
+  };
+
+  const listedProjects = snap.projects.filter((p) => !site.unlistedProjects?.includes(p.id));
+  const featured = listedProjects.find((p) => p.showcase);
+  const featuredTabs = featured ? projectTabs(featured) : [];
+  const quickLink = (project, tab, route, label) => featuredTabs.some(([path]) => path === route)
+    ? `<a class="top-control top-quick" href="${purl(featured, route)}"${project === featured && tab === route ? ' aria-current="true"' : ''}>${label}</a>` : '';
+  const menuFeature = featured?.showcase;
+  const menuArticle = menuFeature && byId.get(menuFeature.entity);
+  const menuPromo = menuFeature ? `<div class="project-promo">
+    ${menuFeature.eyebrow ? `<p class="project-menu-label">${esc(menuFeature.eyebrow)}</p>` : ''}
+    <p class="project-promo-title">${esc(menuFeature.title)}</p>
+    <p class="project-promo-text">${esc(menuFeature.text)}</p>
+    <a class="project-promo-cta" href="${menuArticle ? urlOf(menuArticle) : purl(featured)}">${esc(menuFeature.cta)}</a>
+  </div>` : '';
+
   const layout = ({ title, description = '', body, project = null, tab = '', wide = false }) => {
-    const nav = snap.projects.map((p) => `<a href="${purl(p)}"${project?.id === p.id ? ' aria-current="true"' : ''}>${esc(p.title)}</a>`).join('');
     let sub = '';
     if (project) {
-      const ents = ofProject(project.id);
-      const tabs = [
-        ['', 'Обзор', true],
-        ['wiki/', 'Wiki', ents.some((e) => e.type === 'article')],
-        ['kb/', 'Каталог', ents.some((e) => dirOf(e) === 'kb')],
-        ['roadmap/', 'Roadmap', ents.some((e) => e.roadmap)],
-        ['map/', 'Карта', ents.some((e) => e.links.some((l) => byId.get(l.to)?.project === project.id))],
-        ['devlog/', 'Лента', ents.some((e) => e.type === 'devlog' || e.code_refs.some((c) => c.merged_at))],
-        ['why/', 'Почему так', ents.some((e) => e.type === 'decision')],
-        ['code/', 'Код и задачи', ents.some((e) => e.code_refs.length || e.type === 'task')],
-      ].filter((t) => t[2]);
+      const tabs = projectTabs(project);
       sub = `<nav class="subnav" aria-label="Разделы проекта"><div class="wrap"><span class="subnav-title">${esc(project.title)}</span>${tabs.map(([s, l]) => `<a href="${purl(project, s)}"${tab === s ? ' aria-current="page"' : ''}>${l}</a>`).join('')}</div></nav>`;
     }
     return `<!doctype html>
@@ -267,10 +284,28 @@ ${description ? `<meta name="description" content="${esc(description.slice(0, 20
 </head>
 <body>
 <a class="skip" href="#main">К содержимому</a>
-<header class="top"><div class="wrap">
-  <a class="brand" href="${base}">${esc(site.title)}</a>
-  <nav class="topnav" aria-label="Проекты">${nav}</nav>
-  <a class="search-link" href="${base}search/">Поиск</a>
+<header class="top"><div class="wrap top-shell">
+  <nav class="topnav" aria-label="Основная навигация">
+    <a class="top-control top-home" href="${base}"${title === site.title ? ' aria-current="page"' : ''}>Главная</a>
+    ${quickLink(project, tab, 'wiki/', 'Wiki')}
+  </nav>
+  <details class="project-menu">
+    <summary class="brand top-control">${esc(site.title)}</summary>
+    <div class="project-panel"><div class="project-panel-inner${menuPromo ? ' has-promo' : ''}">
+      ${menuPromo}
+      <nav class="project-menu-links" aria-label="Меню сайта">
+        ${listedProjects.map((p) => `<div class="project-menu-group">
+          <a class="project-menu-label" href="${purl(p)}"${p.id === project?.id && tab === '' ? ' aria-current="page"' : ''}>${esc(p.title)} <span aria-hidden="true">→</span></a>
+          ${p !== featured && p.tagline ? `<p>${esc(p.tagline)}</p>` : ''}
+          ${projectTabs(p).filter(([route]) => route).map(([route, label]) => `<a href="${purl(p, route)}"${p.id === project?.id && tab === route ? ' aria-current="true"' : ''}>${label}</a>`).join('')}
+        </div>`).join('') || `<div class="project-menu-group"><a href="${base}">Главная</a><a href="${base}search/">Поиск</a></div>`}
+      </nav>
+    </div></div>
+  </details>
+  <nav class="topnav topnav-right" aria-label="Быстрые ссылки">
+    ${quickLink(project, tab, 'roadmap/', 'Дорожная карта')}
+    <a class="top-control" href="${base}search/"${title === 'Поиск' ? ' aria-current="page"' : ''}>Поиск</a>
+  </nav>
 </div></header>
 ${sub}
 <main id="main" class="wrap${wide ? ' wide' : ''}">
@@ -305,28 +340,26 @@ ${body}
   };
 
   // --- главная ---
-  // Первый экран: кто автор и один крупный материал, который хочется открыть. Остальные проекты показаны компактно.
-  const recent = [...snap.entities].sort((a, b) => (a.updated < b.updated ? 1 : a.updated > b.updated ? -1 : a.title.localeCompare(b.title))).slice(0, 5);
-  const featured = snap.projects.find((p) => p.showcase);
-  const homeFeed = feedOf(snap.entities);
-  const others = snap.projects.filter((p) => p !== featured);
+  const homeEntities = listedProjects.flatMap((p) => ofProject(p.id));
+  const recent = [...homeEntities].sort((a, b) => (a.updated < b.updated ? 1 : a.updated > b.updated ? -1 : a.title.localeCompare(b.title))).slice(0, 5);
+  const homeFeed = feedOf(homeEntities);
+  const others = listedProjects.filter((p) => p !== featured);
   put('index.html', layout({
-    title: site.title, description: site.intro, wide: true,
+    title: site.title, description: site.intro?.replace(/\s+/g, ' ').trim(), wide: true,
     body: `<section class="hero">
   <p class="eyebrow">${esc(site.role || '')}</p>
   <h1>${esc(site.title)}</h1>
   <p class="lead">${esc(site.intro || '')}</p>
+  ${site.links?.length || site.tech?.length ? `<div class="profile-meta">
+    ${site.links?.length ? `<div class="link-row">${site.links.map((l) => `<a class="ext" rel="noopener" href="${esc(l.url)}">${esc(l.title)}</a>`).join('')}</div>` : ''}
+    ${site.tech?.length ? `<ul class="tags plain" aria-label="Технологии">${site.tech.map((t) => `<li><span>${esc(t)}</span></li>`).join('')}</ul>` : ''}
+  </div>` : ''}
 </section>
 ${featured ? showcaseBlock(featured) : ''}
-<div class="home-cols">
+${others.length ? `<section><h2>${featured ? 'Ещё проекты' : 'Проекты'}</h2><ul class="proj-list">${others.map((p) => `<li><a href="${purl(p)}"><strong>${esc(p.title)}</strong></a><span class="muted">${esc(p.tagline)}</span></li>`).join('')}</ul></section>` : ''}
 <section><h2>${homeFeed.length ? 'Что появилось в игре' : 'Что нового'}</h2>
 ${homeFeed.length ? feedList(homeFeed.slice(0, 5)) : recent.length ? `<ul class="news">${recent.map((e) => `<li>${ico(e)}<div class="card-body"><a href="${urlOf(e)}"><strong>${esc(e.title)}</strong></a>${e.summary ? `<p>${esc(e.summary)}</p>` : ''}</div></li>`).join('')}</ul>` : '<p class="muted">Опубликованных материалов пока нет.</p>'}
 </section>
-<aside class="home-side">
-${others.length || !featured ? `<section><h2>${featured ? 'Ещё проекты' : 'Проекты'}</h2><ul class="proj-list">${(featured ? others : snap.projects).map((p) => `<li><a href="${purl(p)}"><strong>${esc(p.title)}</strong></a><span class="muted">${esc(p.tagline)}</span></li>`).join('') || '<li class="muted">Проектов пока нет.</li>'}</ul></section>` : ''}
-${site.tech?.length ? `<section><h2>Чем пользуюсь</h2><p class="tags">${site.tech.map((t) => `<span>${esc(t)}</span>`).join('')}</p></section>` : ''}
-</aside>
-</div>
 <section><h2>Активность на GitHub</h2>${activityBlock()}</section>
 ${site.feedback_note ? `<p class="muted small feedback">${esc(site.feedback_note)}</p>` : ''}`,
   }));

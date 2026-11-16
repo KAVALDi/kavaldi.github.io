@@ -1,6 +1,20 @@
 // Клиентская часть сайта: поиск по публичному индексу и сворачивание боковых блоков на узком экране.
 (function () {
   const base = window.SITE_BASE || '/';
+  const projectMenu = document.querySelector('.project-menu');
+  if (projectMenu) {
+    document.addEventListener('pointerdown', (event) => {
+      if (!projectMenu.contains(event.target)) projectMenu.open = false;
+    });
+    document.addEventListener('focusin', (event) => {
+      if (!projectMenu.contains(event.target)) projectMenu.open = false;
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || !projectMenu.open) return;
+      projectMenu.open = false;
+      projectMenu.querySelector('summary').focus();
+    });
+  }
   if (window.matchMedia('(max-width: 70rem)').matches) {
     document.querySelectorAll('.doc-nav details, details.toc').forEach((d) => d.removeAttribute('open'));
   }
