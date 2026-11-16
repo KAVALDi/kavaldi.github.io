@@ -114,7 +114,12 @@ export function buildSite({ contentDir, outDir, base = '/' } = {}) {
     return `<span class="chip chip-${dim} v-${v}"><span class="chip-k">${esc(d.label)}</span>${esc(d.values[v] || v)}</span>`;
   }).join('');
   const typeTag = (e) => `<span class="type type-${e.type}">${esc(ENTITY_TYPES[e.type]?.label || e.type)}</span>`;
-  const refLine = (c) => `<a class="ext" rel="noopener" href="${esc(c.url)}">${esc(c.repo.split('/')[1])} ${c.kind === 'pr' || c.kind === 'issue' ? '#' + esc(c.ref) : esc(String(c.path || c.ref).slice(0, 40))}</a>${c.state ? ` <span class="ref-state s-${esc(c.state)}">${esc({ merged: 'влит', open: 'открыт', closed: 'закрыт' }[c.state] || c.state)}</span>` : ''}${c.title ? `<span class="ref-title">${esc(c.title)}</span>` : ''}`;
+  const prAuthorBadge = (c) => c.kind === 'pr' && typeof c.author === 'string' && c.author && site.login && c.author.toLowerCase() !== site.login.toLowerCase()
+    ? ' <span class="ref-author">от другого автора</span>' : '';
+  const refLine = (c) => {
+    const caption = c.note || c.title;
+    return `<a class="ext" rel="noopener" href="${esc(c.url)}">${esc(c.repo.split('/')[1])} ${c.kind === 'pr' || c.kind === 'issue' ? '#' + esc(c.ref) : esc(String(c.path || c.ref).slice(0, 40))}</a>${c.state ? ` <span class="ref-state s-${esc(c.state)}">${esc({ merged: 'влит', open: 'открыт', closed: 'закрыт' }[c.state] || c.state)}</span>` : ''}${prAuthorBadge(c)}${caption ? `<span class="ref-title">${esc(caption)}</span>` : ''}`;
+  };
   // plain: карточка для каталога: только название и одна фраза. Состояния читаются внутри записи.
   // Одна человеческая фраза о том, где сейчас механика. Это подпись к измерению "Код", а не новый статус.
   const badge = (e) => (e.type === 'article' || e.type === 'devlog' ? '' : ({ merged: 'уже в игре', released: 'уже в игре', pr: 'на ревью', local: 'в разработке', none: 'в планах' }[e.states?.implementation] || ''));
@@ -202,13 +207,13 @@ ${nodes.map((e) => { const p0 = pos.get(e.id); return `<a class="gnode${e.id ===
       for (const c of e.code_refs) {
         if (!c.merged_at || seen.has(c.url)) continue;
         seen.add(c.url);
-        out.push({ date: c.merged_at.slice(0, 10), title: c.title || e.title, e, url: c.url, ref: `${c.repo.split('/')[1]}${c.kind === 'pr' ? ' #' + c.ref : ''}` });
+        out.push({ date: c.merged_at.slice(0, 10), title: c.title || e.title, e, url: c.url, ref: `${c.repo.split('/')[1]}${c.kind === 'pr' ? ' #' + c.ref : ''}`, authorBadge: prAuthorBadge(c) });
       }
       if (e.type === 'devlog') out.push({ date: e.created, title: e.title, e, url: null, text: e.summary });
     }
     return out.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
   };
-  const feedList = (items) => `<ol class="feed">${items.map((i) => `<li>${ico(i.e) || '<span class="feed-dot"></span>'}<div class="card-body"><time class="muted small" datetime="${esc(i.date)}">${fmtDate(i.date)}</time><strong>${esc(i.title)}</strong><span class="feed-meta">${i.text ? esc(i.text) : `<a href="${urlOf(i.e)}">${esc(i.e.title)}</a>`}${i.url ? ` · <a class="ext" rel="noopener" href="${esc(i.url)}">${esc(i.ref)}</a>` : ''}</span></div></li>`).join('')}</ol>`;
+  const feedList = (items) => `<ol class="feed">${items.map((i) => `<li>${ico(i.e) || '<span class="feed-dot"></span>'}<div class="card-body"><time class="muted small" datetime="${esc(i.date)}">${fmtDate(i.date)}</time><strong>${esc(i.title)}</strong><span class="feed-meta">${i.text ? esc(i.text) : `<a href="${urlOf(i.e)}">${esc(i.e.title)}</a>`}${i.url ? ` · <a class="ext" rel="noopener" href="${esc(i.url)}">${esc(i.ref)}</a>${i.authorBadge}` : ''}</span></div></li>`).join('')}</ol>`;
 
   const showcaseBlock = (p, { self = false } = {}) => {
     const s = p.showcase;

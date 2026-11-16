@@ -35,7 +35,8 @@
       "title": "Пчеловодство: рои и дикие ульи",
       "state": "open",
       "merged_at": null,
-      "url": "https://github.com/red-star-server/RedStar/pull/153"
+      "url": "https://github.com/red-star-server/RedStar/pull/153",
+      "author": "KAVALDi"
     },
     {
       "repo": "red-star-server/RedStar",
@@ -45,7 +46,8 @@
       "state": "open",
       "merged_at": null,
       "url": "https://github.com/red-star-server/RedStar/pull/207",
-      "note": "Отдельный PR станционного события. Зависит от роёв и мясных пчёл."
+      "note": "Отдельный PR станционного события. Зависит от роёв и мясных пчёл.",
+      "author": "KAVALDi"
     }
   ],
   "references": [],

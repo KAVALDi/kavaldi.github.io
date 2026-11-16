@@ -134,6 +134,7 @@ export function buildPublicSnapshot(store) {
       code_refs: e.code_refs.filter((c) => publicRepos.has(c.repo)).map((c) => ({
         repo: c.repo, kind: c.kind, ref: String(c.ref), title: c.title || '', state: c.state || '',
         merged_at: c.merged_at || null, url: codeRefUrl(c), ...(c.path ? { path: c.path } : {}), ...(c.note ? { note: c.note } : {}),
+        ...(c.kind === 'pr' && typeof c.author === 'string' && c.author ? { author: c.author } : {}),
       })),
       references: e.references.map((r) => ({ title: r.title || r.url, url: r.url })),
       // "Было и стало" по конкретному PR. Показывается только для кода из публичных репозиториев.

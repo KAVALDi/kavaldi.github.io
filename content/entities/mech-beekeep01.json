@@ -26,7 +26,8 @@
       "title": "Пчеловодство",
       "state": "merged",
       "merged_at": "2026-11-06T10:32:57Z",
-      "url": "https://github.com/red-star-server/RedStar/pull/150"
+      "url": "https://github.com/red-star-server/RedStar/pull/150",
+      "author": "KAVALDi"
     },
     {
       "repo": "red-star-server/RedStar",
@@ -36,7 +37,8 @@
       "state": "merged",
       "merged_at": "2026-11-10T21:08:37Z",
       "url": "https://github.com/red-star-server/RedStar/pull/191",
-      "note": "Уточнена русская локализация пчёл и рамок."
+      "note": "Уточнена русская локализация пчёл и рамок.",
+      "author": "AndrewFenriz"
     },
     {
       "repo": "red-star-server/RedStar",
@@ -46,7 +48,8 @@
       "state": "merged",
       "merged_at": "2026-11-14T12:29:33Z",
       "url": "https://github.com/red-star-server/RedStar/pull/201",
-      "note": "В тестах вылета включён поиск пути."
+      "note": "В тестах вылета включён поиск пути.",
+      "author": "AndrewFenriz"
     },
     {
       "repo": "red-star-server/RedStar",
@@ -56,7 +59,8 @@
       "state": "merged",
       "merged_at": "2026-11-15T07:35:16Z",
       "url": "https://github.com/red-star-server/RedStar/pull/204",
-      "note": "Тест срока жизни матки переведён на тестовую карту."
+      "note": "Тест срока жизни матки переведён на тестовую карту.",
+      "author": "AndrewFenriz"
     },
     {
       "repo": "red-star-server/RedStar",
@@ -66,7 +70,8 @@
       "state": "merged",
       "merged_at": "2026-11-15T10:21:17Z",
       "url": "https://github.com/red-star-server/RedStar/pull/205",
-      "note": "Тесты вылета меняют настройку поиска пути в серверном потоке и восстанавливают её после сценария."
+      "note": "Тесты вылета меняют настройку поиска пути в серверном потоке и восстанавливают её после сценария.",
+      "author": "KAVALDi"
     }
   ],
   "references": [

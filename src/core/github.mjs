@@ -54,7 +54,7 @@ export async function syncCodeRefs(store, { log = () => {} } = {}) {
       try {
         if (c.kind === 'pr') {
           const pr = await gh(`repos/${c.repo}/pulls/${c.ref}`);
-          Object.assign(next, { title: pr.title, state: pr.merged_at ? 'merged' : pr.state, merged_at: pr.merged_at || undefined, changed_at: pr.merged_at || pr.updated_at });
+          Object.assign(next, { title: pr.title, author: pr.user?.login || undefined, state: pr.merged_at ? 'merged' : pr.state, merged_at: pr.merged_at || undefined, changed_at: pr.merged_at || pr.updated_at });
         } else if (c.kind === 'issue') {
           const is = await gh(`repos/${c.repo}/issues/${c.ref}`);
           Object.assign(next, { title: is.title, state: is.state, changed_at: is.closed_at || is.updated_at });
@@ -64,7 +64,7 @@ export async function syncCodeRefs(store, { log = () => {} } = {}) {
         } else { refs.push(c); continue; }
         result.checked++;
         next.checked_at = new Date().toISOString().slice(0, 10);
-        const same = ['title', 'state', 'merged_at', 'changed_at'].every((k) => next[k] === c[k]);
+        const same = ['title', 'author', 'state', 'merged_at', 'changed_at'].every((k) => next[k] === c[k]);
         if (!same) changed = true; else next.checked_at = c.checked_at || next.checked_at;
         if (next.state === 'merged' && ['pr', 'local', 'none', 'unknown'].includes(en.states.implementation)) {
           result.mismatches.push({ entity: en.id, title: en.title, message: `${c.repo}#${c.ref} влит ${String(next.merged_at).slice(0, 10)}, а состояние кода в записи: "${en.states.implementation}".` });

@@ -31,7 +31,8 @@
       "title": "Пчеловодство: цена сот в стопке и правка гайдбука",
       "state": "merged",
       "merged_at": "2026-11-09T11:52:56Z",
-      "url": "https://github.com/red-star-server/RedStar/pull/189"
+      "url": "https://github.com/red-star-server/RedStar/pull/189",
+      "author": "KAVALDi"
     },
     {
       "repo": "red-star-server/RedStar",
@@ -40,7 +41,8 @@
       "title": "Пчеловодство: воск из свечей, матка и рамки отдельно в карго",
       "state": "merged",
       "merged_at": "2026-11-10T09:09:55Z",
-      "url": "https://github.com/red-star-server/RedStar/pull/190"
+      "url": "https://github.com/red-star-server/RedStar/pull/190",
+      "author": "KAVALDi"
     }
   ],
   "references": [],
