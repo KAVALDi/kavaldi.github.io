@@ -114,6 +114,7 @@ main.wide { max-width: 82rem; }
   border-radius: 18px; border: 1px solid var(--line); background: radial-gradient(120% 140% at 85% 20%, color-mix(in srgb, var(--honey) 22%, var(--surface)), var(--surface) 62%); box-shadow: var(--shadow); }
 .show h2 { font-size: clamp(1.6rem, 3.6vw, 2.5rem); margin: 0 0 .7rem; letter-spacing: -.015em; }
 .show-text p { font-size: 1.08rem; max-width: 34rem; margin: 0 0 1.2rem; }
+.show-description { white-space: pre-line; text-wrap: balance; }
 .show-text .eyebrow { font-size: .78rem; margin-bottom: .5rem; color: var(--honey); }
 .show-actions { display: flex; flex-wrap: wrap; gap: .8rem 1.4rem; align-items: center; }
 .btn.btn-primary { background: var(--honey); border-color: var(--honey); color: #1d1500; padding: .6rem 1.2rem; font-size: 1.02rem; }

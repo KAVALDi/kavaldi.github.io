@@ -227,7 +227,7 @@ ${nodes.map((e) => { const p0 = pos.get(e.id); return `<a class="gnode${e.id ===
   <div class="show-text">
     ${s.eyebrow ? `<p class="eyebrow">${esc(s.eyebrow)}</p>` : ''}
     <h2 id="show-title">${esc(s.title)}</h2>
-    <p>${esc(s.text)}</p>
+    <p class="show-description">${esc(s.text)}</p>
     <p class="show-actions"><a class="btn btn-primary" href="${target ? urlOf(target) : purl(p)}">${esc(s.cta)}</a>${self ? '' : `<a href="${purl(p)}">Всё о проекте →</a>`}</p>
   </div>
   <div class="show-scene" aria-hidden="true">
