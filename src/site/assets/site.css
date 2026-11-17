@@ -389,9 +389,9 @@ tr:last-child td { border-bottom: 0; }
 
 /* Карта связей: карточки поверх SVG-линий. На узком экране прокручивается по горизонтали. */
 .graph-wrap { overflow-x: auto; padding: 1rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--sunken); }
-.graph-wrap.is-pannable { cursor: grab; }
-.graph-wrap.is-pannable .gnode { cursor: pointer; }
-.graph-wrap.is-panning, .graph-wrap.is-panning .gnode { cursor: grabbing; user-select: none; }
+.is-pannable { cursor: grab; }
+.is-pannable a { cursor: pointer; }
+.is-panning, .is-panning a { cursor: grabbing; user-select: none; }
 .graph { position: relative; margin: 0 auto; }
 .graph svg { position: absolute; inset: 0; overflow: visible; }
 .ge { fill: none; stroke: var(--line-strong); stroke-width: 2; }
@@ -448,6 +448,49 @@ tr:last-child td { border-bottom: 0; }
 .feed strong { font-size: 1.06rem; line-height: 1.35; }
 .feed-meta { color: var(--muted); font-size: .9rem; }
 .feed-dot { display: none; }
+.home-feed-controls { display: none; }
+
+@media (width < 72rem) {
+  .home-archive-preview .home-timeline > li:nth-child(n + 6) { display: none; }
+}
+
+@media (min-width: 72rem) {
+  .home-feed-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: .8rem; }
+  .home-feed-head h2 { margin: 0; }
+  .home-feed-controls:not([hidden]) { display: flex; gap: .4rem; }
+  .home-feed-controls button {
+    display: grid; place-items: center; width: 2.75rem; height: 2.75rem;
+    border: 1px solid var(--line-strong); border-radius: 50%; background: var(--surface);
+    color: var(--text); font: inherit; font-size: 1.2rem; cursor: pointer;
+  }
+  .home-feed-controls button:hover:not([aria-disabled="true"]) { border-color: var(--honey); color: var(--accent-text); }
+  .home-feed-controls button[aria-disabled="true"] { opacity: .45; cursor: default; }
+  .home-feed-archive { display: none; }
+  .home-updates :is(.feed, .news) {
+    --feed-gap: 1.75rem;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(11.5rem, 1fr)); gap: var(--feed-gap);
+    padding: 0; border: 0;
+  }
+  .home-updates :is(.feed, .news) > li {
+    flex-direction: column; gap: .5rem; padding: .9rem; background: var(--surface);
+    border: 1px solid var(--line); border-radius: var(--radius);
+  }
+  .home-updates .home-timeline {
+    grid-template-columns: none; grid-auto-flow: column;
+    grid-auto-columns: calc((100% - 4 * var(--feed-gap)) / 5);
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .home-updates .feed li::before { content: none; }
+  .home-updates .feed > li:not(:last-child)::before {
+    content: ""; top: 50%; left: 100%; width: calc(var(--feed-gap) + 2px); height: 1px;
+    border-radius: 0; background: var(--line-strong); box-shadow: none; pointer-events: none;
+  }
+  .home-updates .feed > li:not(:last-child)::after {
+    content: ""; position: absolute; top: 50%; left: calc(100% + var(--feed-gap) / 2 - .22rem);
+    width: .44rem; height: .44rem; translate: 0 -50%; rotate: 45deg;
+    border: solid var(--honey); border-width: 2px 2px 0 0; pointer-events: none;
+  }
+}
 
 /* "Было и стало", "Почему так". */
 .changes-ba { margin-top: 2.5rem; }

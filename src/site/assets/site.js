@@ -94,8 +94,8 @@
       spy();
     }
 
-    // Перетаскивание фона карты мышью. Ссылки и прокрутка касанием работают как обычно.
-    document.querySelectorAll('.graph-wrap').forEach((wrap) => {
+    // Перетаскивание мышью за свободное место. Ссылки и прокрутка касанием работают как обычно.
+    document.querySelectorAll('.graph-wrap, .home-timeline').forEach((wrap) => {
       const updateCursor = () => wrap.classList.toggle('is-pannable', wrap.scrollWidth > wrap.clientWidth);
       new ResizeObserver(updateCursor).observe(wrap);
       updateCursor();
@@ -123,6 +123,30 @@
         wrap.classList.remove('is-panning');
       });
     });
+
+    const timeline = document.getElementById('home-timeline');
+    if (timeline) {
+      const controls = document.querySelector('.home-feed-controls');
+      const [previous, next] = controls.querySelectorAll('button');
+      const updateControls = () => {
+        const max = timeline.scrollWidth - timeline.clientWidth;
+        controls.hidden = max <= 1;
+        previous.setAttribute('aria-disabled', timeline.scrollLeft <= 1);
+        next.setAttribute('aria-disabled', timeline.scrollLeft >= max - 1);
+      };
+      for (const button of [previous, next]) {
+        button.addEventListener('click', () => {
+          if (button.getAttribute('aria-disabled') === 'true') return;
+          const [first, second] = timeline.children;
+          const step = second.getBoundingClientRect().left - first.getBoundingClientRect().left;
+          const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          timeline.scrollBy({ left: step * Number(button.dataset.feedStep), behavior: reduceMotion ? 'auto' : 'smooth' });
+        });
+      }
+      timeline.addEventListener('scroll', updateControls, { passive: true });
+      new ResizeObserver(updateControls).observe(timeline);
+      updateControls();
+    }
 
     // Длинные таблицы получают поле фильтра.
     document.querySelectorAll('.prose .table-wrap').forEach((wrap) => {

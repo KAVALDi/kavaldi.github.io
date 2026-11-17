@@ -213,7 +213,7 @@ ${nodes.map((e) => { const p0 = pos.get(e.id); return `<a class="gnode${e.id ===
     }
     return out.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
   };
-  const feedList = (items) => `<ol class="feed">${items.map((i) => `<li>${ico(i.e) || '<span class="feed-dot"></span>'}<div class="card-body"><time class="muted small" datetime="${esc(i.date)}">${fmtDate(i.date)}</time><strong>${esc(i.title)}</strong><span class="feed-meta">${i.text ? esc(i.text) : `<a href="${urlOf(i.e)}">${esc(i.e.title)}</a>`}${i.url ? ` · <a class="ext" rel="noopener" href="${esc(i.url)}">${esc(i.ref)}</a>${i.authorBadge}` : ''}</span></div></li>`).join('')}</ol>`;
+  const feedList = (items, { timeline = false } = {}) => `<ol class="feed${timeline ? ' home-timeline' : ''}"${timeline ? ' id="home-timeline"' : ''}>${items.map((i) => `<li>${ico(i.e) || '<span class="feed-dot"></span>'}<div class="card-body"><time class="muted small" datetime="${esc(i.date)}">${fmtDate(i.date)}</time><strong>${esc(i.title)}</strong><span class="feed-meta">${i.text ? esc(i.text) : `<a href="${urlOf(i.e)}">${esc(i.e.title)}</a>`}${i.url ? ` · <a class="ext" rel="noopener" href="${esc(i.url)}">${esc(i.ref)}</a>${i.authorBadge}` : ''}</span></div></li>`).join('')}</ol>`;
 
   const showcaseBlock = (p, { self = false } = {}) => {
     const s = p.showcase;
@@ -345,6 +345,8 @@ ${body}
   const homeEntities = listedProjects.flatMap((p) => ofProject(p.id));
   const recent = [...homeEntities].sort((a, b) => (a.updated < b.updated ? 1 : a.updated > b.updated ? -1 : a.title.localeCompare(b.title))).slice(0, 5);
   const homeFeed = feedOf(homeEntities);
+  const scrollableFeed = homeFeed.length > 5;
+  const homeFeedArchive = scrollableFeed && listedProjects.length === 1 ? purl(listedProjects[0], 'devlog/') : '';
   const others = listedProjects.filter((p) => p !== featured);
   put('index.html', layout({
     title: site.title, description: site.intro?.replace(/\s+/g, ' ').trim(), wide: true,
@@ -362,8 +364,15 @@ ${featured ? showcaseBlock(featured) : ''}
 </div>
 ${others.length ? `<section><h2>${featured ? 'Ещё проекты' : 'Проекты'}</h2><ul class="proj-list">${others.map((p) => `<li><a href="${purl(p)}"><strong>${esc(p.title)}</strong></a><span class="muted">${esc(p.tagline)}</span></li>`).join('')}</ul></section>` : ''}
 <div class="home-updates">
-<section><h2>${homeFeed.length ? 'Что появилось в игре' : 'Что нового'}</h2>
-${homeFeed.length ? feedList(homeFeed.slice(0, 5)) : recent.length ? `<ul class="news">${recent.map((e) => `<li>${ico(e)}<div class="card-body"><a href="${urlOf(e)}"><strong>${esc(e.title)}</strong></a>${e.summary ? `<p>${esc(e.summary)}</p>` : ''}</div></li>`).join('')}</ul>` : '<p class="muted">Опубликованных материалов пока нет.</p>'}
+<section${homeFeedArchive ? ' class="home-archive-preview"' : ''}>
+<div class="home-feed-head"><h2>${homeFeed.length ? 'Что появилось в игре' : 'Что нового'}</h2>
+${scrollableFeed ? `<div class="home-feed-controls" role="group" aria-label="Прокрутка ленты" hidden>
+  <button type="button" aria-label="Более свежие записи" aria-controls="home-timeline" data-feed-step="-1"><span aria-hidden="true">←</span></button>
+  <button type="button" aria-label="Более ранние записи" aria-controls="home-timeline" data-feed-step="1"><span aria-hidden="true">→</span></button>
+</div>` : ''}
+</div>
+${homeFeed.length ? feedList(homeFeed, { timeline: scrollableFeed }) : recent.length ? `<ul class="news">${recent.map((e) => `<li>${ico(e)}<div class="card-body"><a href="${urlOf(e)}"><strong>${esc(e.title)}</strong></a>${e.summary ? `<p>${esc(e.summary)}</p>` : ''}</div></li>`).join('')}</ul>` : '<p class="muted">Опубликованных материалов пока нет.</p>'}
+${homeFeedArchive ? `<p class="home-feed-archive"><a href="${homeFeedArchive}">Вся лента изменений →</a></p>` : ''}
 ${site.feedback_note ? `<p class="muted small feedback">${esc(site.feedback_note)}</p>` : ''}
 </section>
 <section class="home-activity"><h2>Активность на GitHub</h2>${activityBlock()}</section>
