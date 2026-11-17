@@ -272,9 +272,27 @@ main.wide { max-width: 82rem; }
 .news p { margin: .2rem 0 .3rem; color: var(--muted); max-width: 40rem; }
 .proj-list { list-style: none; padding: 0; margin: 0; }
 .proj-list li { display: flex; flex-direction: column; padding: .6rem 0; border-top: 1px solid var(--line); font-size: .95rem; }
-.feedback { margin-top: 2.5rem; }
+.feedback { margin: 1rem 0 0; }
 .card-plain { box-shadow: none; padding: 1rem 1.1rem; } .card-plain strong { font-size: 1.08rem; }
 @media (max-width: 52rem) { .show { grid-template-columns: minmax(0, 1fr); } .show-scene { order: -1; } .lanes { grid-template-columns: minmax(0, 1fr); } }
+
+@media (min-width: 72rem) {
+  .home-intro.has-showcase { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.95fr); align-items: center; gap: 2.5rem; padding-top: 1rem; }
+  .home-intro.has-showcase .hero { padding: 0; }
+  .home-intro .show { margin: 0; padding: 2rem; gap: 1.25rem; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); }
+  .home-intro .hero .lead, .home-intro .show-description { text-wrap: pretty; }
+  .home-intro .show h2 { font-size: 2rem; }
+  .home-intro .show-stage { height: 13rem; }
+  .home-intro .hero-spr { --s: 12rem; }
+  .home-intro .show-items { gap: .6rem 1rem; }
+  .home-intro .show-items .spr { --s: 44px; }
+  .home-updates, .home-activity { margin-top: 2.5rem; }
+  .home-updates h2 { margin-top: 0; }
+  .home-activity { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.25rem; }
+  .home-activity .activity-grid { width: 100%; grid-auto-columns: minmax(0, 1fr); grid-template-rows: repeat(7, auto); }
+  .home-activity .activity-grid i { aspect-ratio: 1; }
+  .home-activity > p { margin-bottom: 0; }
+}
 @media (prefers-reduced-motion: reduce) { .flyer, .spr.sheet i { animation: none; } }
 .rcard p { margin: .3rem 0 .5rem; font-size: .92rem; color: var(--muted); }
 .rcard a { text-decoration: none; } .rcard a:hover { text-decoration: underline; }

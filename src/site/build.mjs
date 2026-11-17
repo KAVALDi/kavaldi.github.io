@@ -348,7 +348,8 @@ ${body}
   const others = listedProjects.filter((p) => p !== featured);
   put('index.html', layout({
     title: site.title, description: site.intro?.replace(/\s+/g, ' ').trim(), wide: true,
-    body: `<section class="hero">
+    body: `<div class="home-intro${featured ? ' has-showcase' : ''}">
+<section class="hero">
   <p class="eyebrow">${esc(site.role || '')}</p>
   <h1>${esc(site.title)}</h1>
   <p class="lead">${esc(site.intro || '')}</p>
@@ -358,12 +359,15 @@ ${body}
   </div>` : ''}
 </section>
 ${featured ? showcaseBlock(featured) : ''}
+</div>
 ${others.length ? `<section><h2>${featured ? 'Ещё проекты' : 'Проекты'}</h2><ul class="proj-list">${others.map((p) => `<li><a href="${purl(p)}"><strong>${esc(p.title)}</strong></a><span class="muted">${esc(p.tagline)}</span></li>`).join('')}</ul></section>` : ''}
+<div class="home-updates">
 <section><h2>${homeFeed.length ? 'Что появилось в игре' : 'Что нового'}</h2>
 ${homeFeed.length ? feedList(homeFeed.slice(0, 5)) : recent.length ? `<ul class="news">${recent.map((e) => `<li>${ico(e)}<div class="card-body"><a href="${urlOf(e)}"><strong>${esc(e.title)}</strong></a>${e.summary ? `<p>${esc(e.summary)}</p>` : ''}</div></li>`).join('')}</ul>` : '<p class="muted">Опубликованных материалов пока нет.</p>'}
+${site.feedback_note ? `<p class="muted small feedback">${esc(site.feedback_note)}</p>` : ''}
 </section>
-<section><h2>Активность на GitHub</h2>${activityBlock()}</section>
-${site.feedback_note ? `<p class="muted small feedback">${esc(site.feedback_note)}</p>` : ''}`,
+<section class="home-activity"><h2>Активность на GitHub</h2>${activityBlock()}</section>
+</div>`,
   }));
 
   // --- страницы проектов ---
