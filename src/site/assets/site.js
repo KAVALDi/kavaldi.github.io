@@ -3,16 +3,37 @@
   const base = window.SITE_BASE || '/';
   const projectMenu = document.querySelector('.project-menu');
   if (projectMenu) {
+    const trigger = projectMenu.querySelector('summary');
+    let openedByHover = false;
+    const closeMenu = () => {
+      openedByHover = false;
+      projectMenu.open = false;
+    };
+    trigger.addEventListener('pointerenter', (event) => {
+      if (event.pointerType !== 'mouse' || projectMenu.open) return;
+      openedByHover = true;
+      projectMenu.open = true;
+    });
+    projectMenu.addEventListener('pointerleave', (event) => {
+      if (event.pointerType !== 'mouse' || !openedByHover) return;
+      if (!projectMenu.contains(document.activeElement)) closeMenu();
+    });
+    trigger.addEventListener('click', (event) => {
+      if (!openedByHover) return;
+      openedByHover = false;
+      // Клик закрепляет открытое наведением меню. Следующий клик закрывает его.
+      if (event.detail > 0) event.preventDefault();
+    });
     document.addEventListener('pointerdown', (event) => {
-      if (!projectMenu.contains(event.target)) projectMenu.open = false;
+      if (!projectMenu.contains(event.target)) closeMenu();
     });
     document.addEventListener('focusin', (event) => {
-      if (!projectMenu.contains(event.target)) projectMenu.open = false;
+      if (!projectMenu.contains(event.target)) closeMenu();
     });
     document.addEventListener('keydown', (event) => {
       if (event.key !== 'Escape' || !projectMenu.open) return;
-      projectMenu.open = false;
-      projectMenu.querySelector('summary').focus();
+      closeMenu();
+      trigger.focus();
     });
   }
   if (window.matchMedia('(max-width: 70rem)').matches) {

@@ -42,7 +42,7 @@ main.wide { max-width: 82rem; }
 
 .top {
   --nav-gutter: clamp(.5rem, 2vw, 1.25rem);
-  --nav-width: 37.5rem;
+  --nav-width: 31.25rem;
   --nav-surface: #fff;
   --nav-hover: var(--sunken);
   --nav-glow: color-mix(in srgb, var(--accent) 20%, var(--accent-soft));
@@ -61,8 +61,8 @@ main.wide { max-width: 82rem; }
   min-height: 4rem; max-width: var(--nav-width); padding-inline: .75rem;
   border-radius: 2rem; background: var(--nav-surface); box-shadow: var(--shadow);
 }
-.topnav { display: flex; justify-content: flex-end; align-items: center; gap: .25rem; }
-.topnav-right { grid-column: 3; justify-content: flex-start; }
+.topnav { display: flex; align-items: center; gap: .25rem; }
+.topnav-right { grid-column: 3; justify-content: flex-end; }
 .subnav a {
   text-decoration: none; color: var(--muted); padding: .35rem .65rem; border-radius: 6px;
 }
@@ -71,23 +71,18 @@ main.wide { max-width: 82rem; }
 .subnav a[aria-current] { color: var(--accent-text); background: var(--accent-soft); font-weight: 600; }
 .top-control {
   display: flex; align-items: center; min-height: 2.75rem; padding: .35rem .85rem;
-  border-radius: var(--radius); color: var(--text); font-size: .9rem; text-decoration: none;
+  border-radius: 999px; color: var(--text); font-size: .9rem; text-decoration: none;
   white-space: nowrap; transition: background-color .15s, color .15s, box-shadow .15s;
 }
-.project-menu { grid-column: 2; }
+.project-menu { grid-column: 2; align-self: stretch; align-content: center; }
 .top-control.brand { font-size: 1.2rem; font-weight: 800; letter-spacing: .02em; }
 .top-control:hover, .project-menu[open] summary { color: var(--accent-text); background-color: var(--nav-hover); }
 .top-control[aria-current], .top-control:active {
   color: var(--accent-text); background: radial-gradient(ellipse at 100% 100%, var(--nav-glow), transparent 80%), var(--accent-soft);
   box-shadow: inset 0 2px 6px rgb(0 0 0 / 12%);
 }
-.project-menu summary { cursor: pointer; user-select: none; gap: .45rem; list-style: none; }
+.project-menu summary { cursor: pointer; user-select: none; list-style: none; }
 .project-menu summary::-webkit-details-marker { display: none; }
-.project-menu summary::after {
-  content: ""; width: .35em; height: .35em; border: solid currentColor; border-width: 0 1px 1px 0;
-  transform: translateY(-.08em) rotate(45deg);
-}
-.project-menu[open] summary::after { transform: translateY(.08em) rotate(225deg); }
 .project-panel {
   position: absolute; inset: calc(100% - 1px) clamp(var(--nav-shoulder), 5vw, 3.5rem) auto;
   background: var(--nav-surface); border-radius: 0 0 2rem 2rem;
@@ -142,7 +137,7 @@ main.wide { max-width: 82rem; }
 @media (max-width: 52rem) {
   .top { --nav-shoulder: 1.25rem; }
 }
-@media (min-width: 44rem) {
+@media (min-width: 38rem) {
   .project-panel {
     --nav-join: 1rem;
     inset: calc(100% + var(--nav-join) - 1px) auto auto 50%;
@@ -152,6 +147,7 @@ main.wide { max-width: 82rem; }
   .project-panel::before {
     inset: auto auto calc(100% - 1px) 50%;
     width: calc(var(--nav-width) - 4rem); height: var(--nav-join); translate: -50% 0;
+    pointer-events: auto;
     background:
       radial-gradient(circle at 0 0, transparent calc(var(--nav-join) - .5px), var(--nav-surface) var(--nav-join)) left / var(--nav-join) 100% no-repeat,
       radial-gradient(circle at 100% 0, transparent calc(var(--nav-join) - .5px), var(--nav-surface) var(--nav-join)) right / var(--nav-join) 100% no-repeat,
@@ -159,7 +155,7 @@ main.wide { max-width: 82rem; }
   }
   .project-panel::after { display: none; }
 }
-@media (max-width: 42rem) {
+@media (max-width: 34rem) {
   .topnav .top-quick { display: none; }
 }
 @media (max-width: 36rem) {

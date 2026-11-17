@@ -303,7 +303,7 @@ ${description ? `<meta name="description" content="${esc(description.slice(0, 20
     </div></div>
   </details>
   <nav class="topnav topnav-right" aria-label="Быстрые ссылки">
-    ${quickLink(project, tab, 'roadmap/', 'Дорожная карта')}
+    ${quickLink(project, tab, 'roadmap/', 'Планы')}
     <a class="top-control" href="${base}search/"${title === 'Поиск' ? ' aria-current="page"' : ''}>Поиск</a>
   </nav>
 </div></header>
