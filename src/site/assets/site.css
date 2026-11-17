@@ -112,11 +112,18 @@ main.wide { max-width: 82rem; }
   to { opacity: 1; transform: translateY(0); }
 }
 .project-promo {
+  position: relative; isolation: isolate; overflow: hidden;
   padding: clamp(1rem, 2.2vw, 1.65rem); border-radius: 1.25rem;
   background: linear-gradient(115deg, color-mix(in srgb, var(--honey) 20%, var(--nav-surface)), var(--nav-surface));
 }
 .project-menu-label { font-size: .75rem; font-weight: 800; letter-spacing: .075em; text-transform: uppercase; }
 .project-promo .project-menu-label { margin: 0; color: color-mix(in srgb, var(--honey) 60%, var(--text)); }
+.project-promo-art { position: absolute; z-index: -1; inset: 0; pointer-events: none; }
+.project-promo-art .spr.sheet { position: absolute; --s: 3.25rem; opacity: .7; }
+.project-promo-art .spr.sheet i { animation: none; }
+.project-promo-art .spr:nth-child(1) { top: .2rem; right: 2.5rem; }
+.project-promo-art .spr:nth-child(2) { top: 2rem; right: .25rem; --s: 2.6rem; opacity: .5; scale: -1 1; }
+.project-promo-art .spr:nth-child(3) { bottom: .8rem; right: 1rem; }
 .project-promo-title {
   margin: .7rem 0 .55rem; font-size: clamp(1.4rem, 3vw, 2.35rem); font-weight: 800;
   line-height: 1.08; letter-spacing: -.035em; text-wrap: balance;

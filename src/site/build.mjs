@@ -258,7 +258,9 @@ ${nodes.map((e) => { const p0 = pos.get(e.id); return `<a class="gnode${e.id ===
     ? `<a class="top-control top-quick" href="${purl(featured, route)}"${project === featured && tab === route ? ' aria-current="true"' : ''}>${label}</a>` : '';
   const menuFeature = featured?.showcase;
   const menuArticle = menuFeature && byId.get(menuFeature.entity);
+  const menuFlyer = menuFeature?.flyers.find((flyer) => flyer.layers.length);
   const menuPromo = menuFeature ? `<div class="project-promo">
+    ${menuFlyer ? `<span class="project-promo-art" aria-hidden="true">${spr(menuFlyer.layers, menuFeature.tint, { cls: 'sheet', cols: menuFlyer.cols }).repeat(3)}</span>` : ''}
     ${menuFeature.eyebrow ? `<p class="project-menu-label">${esc(menuFeature.eyebrow)}</p>` : ''}
     <p class="project-promo-title">${esc(menuFeature.title)}</p>
     <p class="project-promo-text">${esc(menuFeature.text)}</p>
